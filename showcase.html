@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Component Library - 80+ Components</title>
+<style>
+/* ─── Variables ─────────────────────────────────────────────────── */
+:root {
+  --bg:          #07070f;
+  --surface:     rgba(255 255 255 / 0.03);
+  --surface-h:   rgba(255 255 255 / 0.07);
+  --border:      rgba(255 255 255 / 0.07);
+  --border-h:    rgba(255 255 255 / 0.2);
+  --text:        rgba(255 255 255 / 0.88);
+  --muted:       rgba(255 255 255 / 0.38);
+  --faint:       rgba(255 255 255 / 0.12);
+  --blue:        #60a5fa;
+  --purple:      #a78bfa;
+  --green:       #34d399;
+  --orange:      #fb923c;
+  --mono:        ui-monospace,'Cascadia Code','Source Code Pro',Menlo,Consolas,monospace;
+  --sans:        -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --r:           12px;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; overflow-x:hidden; }
+
+/* ─── Nav ────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: 60px;
+  display: flex; align-items:center; gap:16px; padding:0 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7 7 15 / 0.88);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter:blur(18px);
+}
+.nav-logo {
+  font-family: var(--mono); font-size:13px; font-weight:600;
+  letter-spacing:0.04em; color:var(--text); white-space:nowrap; text-decoration:none;
+}
+.nav-logo span { color:var(--blue); }
+.search-wrap { flex:1; max-width:300px; position:relative; }
+.search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:.3; pointer-events:none; }
+#search {
+  width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:7px 12px 7px 32px; color:var(--text); font-family:var(--mono);
+  font-size:12px; outline:none; transition:border-color .2s;
+}
+#search::placeholder { color:var(--muted); }
+#search:focus { border-color:rgba(255 255 255 / .22); }
+.nav-count { margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--muted); white-space:nowrap; }
+
+/* ─── Hero ───────────────────────────────────────────────────────── */
+.hero {
+  padding: 120px 24px 56px; text-align:center; position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:700px; height:350px;
+  background: radial-gradient(ellipse at center, rgba(96 165 250 / .11) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-eye {
+  font-family:var(--mono); font-size:11px; letter-spacing:.15em; color:var(--blue);
+  text-transform:uppercase; margin-bottom:14px;
+  opacity:0; animation:fadeUp .5s ease .1s forwards;
+}
+.hero-title {
+  font-size: clamp(34px,6vw,60px); font-weight:700; letter-spacing:-.03em; line-height:1.1;
+  margin-bottom:14px; opacity:0; animation:fadeUp .5s ease .2s forwards;
+}
+.hero-title em { font-style:normal; color:var(--blue); }
+.hero-sub {
+  font-family:var(--mono); font-size:12.5px; color:var(--muted); line-height:1.7;
+  max-width:440px; margin:0 auto; opacity:0; animation:fadeUp .5s ease .3s forwards;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── Filters ────────────────────────────────────────────────────── */
+.filters {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+  padding:28px 24px 24px; opacity:0; animation:fadeUp .5s ease .4s forwards;
+}
+.fbtn {
+  font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.06em;
+  padding:5px 14px; border-radius:100px; border:1px solid var(--border);
+  background:var(--surface); color:var(--muted); cursor:pointer; transition:all .15s;
+}
+.fbtn:hover { border-color:rgba(255 255 255 / .18); color:var(--text); }
+.fbtn.active { background:rgba(255 255 255 / .08); border-color:rgba(255 255 255 / .22); color:var(--text); }
+.fbtn[data-c="text"].active    { color:var(--blue);   border-color:rgba(96  165 250 / .35); background:rgba(96  165 250 / .07); }
+.fbtn[data-c="bg"].active      { color:var(--purple);  border-color:rgba(167 139 250 / .35); background:rgba(167 139 250 / .07); }
+.fbtn[data-c="ui"].active      { color:var(--green);   border-color:rgba(52  211 153 / .35); background:rgba(52  211 153 / .07); }
+.fbtn[data-c="kokonutui"].active { color:var(--orange); border-color:rgba(251 146 60  / .35); background:rgba(251 146 60  / .07); }
+
+/* ─── Grid ───────────────────────────────────────────────────────── */
+#grid {
+  max-width:1440px; margin:0 auto; padding:0 20px 100px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px;
+}
+
+/* ─── Card ───────────────────────────────────────────────────────── */
+.card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r);
+  overflow:hidden; transition:border-color .2s, background .2s, transform .2s, box-shadow .2s;
+  animation:cardIn .4s ease both;
+}
+.card:hover {
+  border-color:var(--border-h); background:var(--surface-h);
+  transform:translateY(-2px); box-shadow:0 8px 30px rgba(0 0 0 / .3);
+}
+@keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── Preview Box ────────────────────────────────────────────────── */
+.preview {
+  height:120px; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+  background:rgba(0 0 0 / .35); border-bottom:1px solid var(--border);
+}
+
+/* ─── Card Body ──────────────────────────────────────────────────── */
+.card-body { padding:11px 13px; }
+.card-name { font-size:12.5px; font-weight:600; color:var(--text); margin-bottom:3px; letter-spacing:-.01em; }
+.card-desc { font-family:var(--mono); font-size:10px; color:var(--muted); line-height:1.55; margin-bottom:10px; }
+.card-foot { display:flex; align-items:center; justify-content:space-between; }
+
+.badge {
+  font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:.1em;
+  padding:2px 7px; border-radius:100px; text-transform:uppercase;
+}
+.badge-text      { color:var(--blue);   background:rgba(96  165 250 / .1); }
+.badge-bg        { color:var(--purple);  background:rgba(167 139 250 / .1); }
+.badge-ui        { color:var(--green);   background:rgba(52  211 153 / .1); }
+.badge-kokonutui { color:var(--orange); background:rgba(251 146 60  / .1); }
+
+.cpbtn {
+  font-family:var(--mono); font-size:9px; color:var(--muted);
+  background:none; border:1px solid var(--border); border-radius:5px;
+  padding:3px 8px; cursor:pointer; transition:all .15s;
+}
+.cpbtn:hover { color:var(--text); border-color:rgba(255 255 255 / .2); }
+.cpbtn.ok { color:var(--green); border-color:rgba(52 211 153 / .35); }
+
+/* ─── Empty ──────────────────────────────────────────────────────── */
+#empty { grid-column:1/-1; text-align:center; padding:80px 24px; font-family:var(--mono); color:var(--muted); font-size:13px; display:none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREVIEW ANIMATIONS
+═══════════════════════════════════════════════════════════════════ */
+
+/* BLUR */
+.p-blur .pt { font-size:19px; font-weight:700; color:rgba(255 255 255 / .9); animation:pBlur 2.5s ease-in-out infinite alternate; }
+@keyframes pBlur { from { filter:blur(7px); opacity:.2; transform:translateY(7px); } to { filter:blur(0); opacity:1; transform:translateY(0); } }
+
+/* GRADIENT */
+.p-gradient .pt {
+  font-size:21px; font-weight:800;
+  background:linear-gradient(90deg, #60a5fa, #a78bfa, #34d399, #fb923c, #60a5fa);
+  background-size:300% 100%; -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; animation:pGrad 3s linear infinite;
+}
+@keyframes pGrad { from { background-position:0% center; } to { background-position:300% center; } }
+
+/* GLITCH */
+.p-glitch .pt { font-size:19px; font-weight:700; color:rgba(255 255 255 / .9); animation:pGlitch 4s ease-in-out infinite; }
+@keyframes pGlitch {
+  0%,86%,100% { text-shadow:none; transform:translate(0); }
+  87% { text-shadow:-3px 0 #f0f, 3px 0 #0ff; transform:translate(2px,0); }
+  88% { text-shadow:3px 0 #f0f, -3px 0 #0ff; transform:translate(-2px,0); }
+  89% { text-shadow:none; transform:translate(0); }
+  90% { text-shadow:-2px 0 #f0f; transform:translate(1px,-1px); }
+  91% { text-shadow:none; transform:translate(0); }
+}
+
+/* SHIMMER */
+.p-shimmer { background:#111; }
+.p-shimmer .pt {
+  font-size:19px; font-weight:700; position:relative;
+  background:linear-gradient(90deg, rgba(255 255 255 / .3) 0%, rgba(255 255 255 / .95) 40%, rgba(255 255 255 / .3) 80%);
+  background-size:200% 100%; -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; animation:pShim 2.5s ease-in-out infinite;
+}
+@keyframes pShim { from { background-position:150% center; } to { background-position:-150% center; } }
+
+/* FLIP */
+.p-flip { overflow:hidden; }
+.p-flip .pt { font-size:18px; font-weight:700; color:rgba(255 255 255 / .88); animation:pFlip 3s ease-in-out infinite; }
+@keyframes pFlip {
+  0%,35%  { opacity:1; transform:translateY(0) rotateX(0deg); }
+  40%,50% { opacity:0; transform:translateY(-12px) rotateX(30deg); }
+  55%     { opacity:0; transform:translateY(12px) rotateX(-30deg); }
+  60%,100%{ opacity:1; transform:translateY(0) rotateX(0deg); }
+}
+
+/* CURSOR */
+.p-cursor .pt {
+  font-family:var(--mono); font-size:13px; color:rgba(255 255 255 / .8);
+  border-right:2px solid var(--blue); white-space:nowrap; overflow:hidden;
+  width:0; animation:pType 3.5s steps(15,end) infinite, pBlink .8s step-end infinite alternate;
+}
+@keyframes pType  { 0%,5% { width:0; } 45%,88% { width:15ch; } 94%,100% { width:0; } }
+@keyframes pBlink { from { border-color:var(--blue); } to { border-color:transparent; } }
+
+/* COUNT */
+.p-count .pt {
+  font-family:var(--mono); font-size:38px; font-weight:800;
+  background:linear-gradient(135deg, var(--blue), var(--purple));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+
+/* AURORA */
+.p-aurora::before {
+  content:''; position:absolute; inset:-50px;
+  background:
+    radial-gradient(ellipse at 25% 35%, rgba(96 165 250 / .55) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 65%, rgba(167 139 250 / .5)  0%, transparent 55%),
+    radial-gradient(ellipse at 50% 80%, rgba(52 211 153 / .35)  0%, transparent 55%);
+  filter:blur(22px); animation:pAurora 6s ease-in-out infinite alternate;
+}
+@keyframes pAurora { from { transform:scale(1) rotate(0deg); } to { transform:scale(1.25) rotate(10deg); } }
+
+/* BEAMS */
+.p-beams { background:#040410; }
+.p-beams::before, .p-beams::after {
+  content:''; position:absolute; top:0; bottom:0; width:1px;
+  background:linear-gradient(to bottom, transparent 0%, rgba(96 165 250 / .9) 50%, transparent 100%);
+}
+.p-beams::before { left:38%; animation:pBeam 2s ease-in-out infinite; }
+.p-beams::after  { left:62%; animation:pBeam 2s ease-in-out .9s infinite; }
+@keyframes pBeam { 0%,100% { opacity:0; transform:scaleY(0.1); } 50% { opacity:1; transform:scaleY(1); } }
+
+/* DOTS */
+.p-dots::before {
+  content:''; position:absolute; inset:0;
+  background-image:radial-gradient(circle, rgba(255 255 255 / .4) 1px, transparent 1px);
+  background-size:16px 16px; animation:pDots 3s ease-in-out infinite alternate;
+}
+@keyframes pDots { from { background-position:0 0; opacity:.6; } to { background-position:8px 8px; opacity:1; } }
+
+/* PARTICLES */
+.p-particles { background:var(--bg); }
+.dot {
+  position:absolute; border-radius:50%;
+  background:rgba(255 255 255 / .55);
+  animation:pDot var(--d) ease-in-out infinite alternate;
+}
+@keyframes pDot { from { transform:translate(0,0); opacity:.15; } to { transform:translate(var(--x),var(--y)); opacity:.85; } }
+
+/* WAVES */
+.p-waves { background:linear-gradient(to bottom, #06061a, #0f0f30); overflow:hidden; }
+.p-waves::before, .p-waves::after {
+  content:''; position:absolute; bottom:0; width:200%; height:50%;
+  border-radius:45% 55% 0 0 / 80% 80% 0 0;
+}
+.p-waves::before { background:rgba(96 165 250 / .2); animation:pWave 4s linear infinite; }
+.p-waves::after  { background:rgba(167 139 250 / .15); animation:pWave 3s linear infinite reverse; transform:scaleY(.75); }
+@keyframes pWave { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+/* NOISE */
+.p-noise { background:#111; }
+.p-noise::before {
+  content:''; position:absolute; inset:0; opacity:.45;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+}
+
+/* CARD */
+.p-card { background:#090912; }
+.mini-card {
+  width:68%; background:rgba(255 255 255 / .05); border:1px solid rgba(255 255 255 / .1);
+  border-radius:8px; padding:10px 12px; animation:pCardBob 3s ease-in-out infinite alternate;
+}
+.mc-line { height:5px; border-radius:3px; background:rgba(255 255 255 / .14); margin-bottom:5px; }
+.mc-line:nth-child(2) { width:72%; }
+.mc-line:nth-child(3) { width:50%; }
+@keyframes pCardBob { from { transform:translateY(-3px) rotate(-.8deg); } to { transform:translateY(3px) rotate(.8deg); } }
+
+/* GLASS */
+.p-glass { background:linear-gradient(135deg, #12123a, #0c0c22); }
+.mini-glass {
+  width:72%; background:rgba(255 255 255 / .07); border:1px solid rgba(255 255 255 / .16);
+  border-radius:10px; padding:11px 15px; animation:pGlassGlow 4s ease-in-out infinite alternate;
+}
+.mg-line { height:5px; border-radius:3px; background:rgba(255 255 255 / .18); margin-bottom:6px; }
+.mg-line:nth-child(2) { width:65%; }
+@keyframes pGlassGlow { from { box-shadow:0 8px 24px rgba(96 165 250 / .15); } to { box-shadow:0 8px 24px rgba(167 139 250 / .22); } }
+
+/* GLOW */
+.p-glow { background:#050510; }
+.mini-glow {
+  padding:9px 22px; border-radius:8px; border:1px solid rgba(96 165 250 / .55);
+  color:var(--blue); font-family:var(--mono); font-size:11px;
+  animation:pGlowPulse 2s ease-in-out infinite alternate;
+}
+@keyframes pGlowPulse {
+  from { box-shadow:0 0 8px rgba(96 165 250 / .3), inset 0 0 8px rgba(96 165 250 / .05); }
+  to   { box-shadow:0 0 22px rgba(96 165 250 / .7), inset 0 0 14px rgba(96 165 250 / .1); }
+}
+
+/* BUTTON */
+.p-button { background:#050510; }
+.mini-btn {
+  padding:9px 22px; border-radius:8px; background:rgba(96 165 250 / .12);
+  border:1px solid rgba(96 165 250 / .35); color:var(--blue);
+  font-family:var(--mono); font-size:11px; animation:pBtnPop 2.5s ease-in-out infinite alternate;
+}
+@keyframes pBtnPop { from { transform:scale(1); background:rgba(96 165 250 / .08); } to { transform:scale(1.05); background:rgba(96 165 250 / .18); } }
+
+/* LIST */
+.p-list { background:#07070f; flex-direction:column; align-items:flex-start; gap:6px; padding:14px 16px; }
+.ml-row { display:flex; align-items:center; gap:8px; width:100%; }
+.ml-dot { width:5px; height:5px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.ml-bar { height:5px; border-radius:3px; background:rgba(255 255 255 / .14); flex:1; }
+.ml-row:nth-child(1) { animation:pListRow 2.4s ease .0s infinite; }
+.ml-row:nth-child(2) { animation:pListRow 2.4s ease .18s infinite; }
+.ml-row:nth-child(3) { animation:pListRow 2.4s ease .36s infinite; }
+.ml-row:nth-child(4) { animation:pListRow 2.4s ease .54s infinite; }
+@keyframes pListRow { 0%,100% { opacity:.25; transform:translateX(-5px); } 30%,75% { opacity:1; transform:translateX(0); } }
+
+/* SHAPE */
+.p-shape { background:#050510; }
+.mini-shape {
+  width:56px; height:56px;
+  background:linear-gradient(135deg, rgba(96 165 250 / .7), rgba(167 139 250 / .6));
+  animation:pMorph 5s ease-in-out infinite;
+}
+@keyframes pMorph {
+  0%,100% { border-radius:30% 70% 70% 30% / 30% 30% 70% 70%; }
+  25%  { border-radius:70% 30% 30% 70% / 70% 70% 30% 30%; }
+  50%  { border-radius:50% 50% 30% 70% / 50% 50% 70% 30%; }
+  75%  { border-radius:30% 70% 50% 50% / 30% 70% 50% 50%; }
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────── */
+footer {
+  border-top:1px solid var(--border); padding:24px; text-align:center;
+  font-family:var(--mono); font-size:11px; color:var(--faint); line-height:2;
+}
+footer a { color:var(--muted); text-decoration:none; }
+footer a:hover { color:var(--text); }
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width:640px) {
+  #grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; padding:0 12px 70px; }
+  nav { padding:0 14px; }
+  .hero { padding:90px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ───────────────────────────────────────────────────────────── -->
+<nav>
+  <span class="nav-logo">UI<span>/</span>Components</span>
+  <div class="search-wrap">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input id="search" type="text" placeholder="Search components..." autocomplete="off" spellcheck="false">
+  </div>
+  <span class="nav-count" id="nav-count">80 components</span>
+</nav>
+
+<!-- ── Hero ──────────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-eye">React Component Library</div>
+  <h1 class="hero-title"><em>80+</em> UI Components</h1>
+  <p class="hero-sub">Text effects, animated backgrounds, interactive UI blocks, and KokonutUI components. Built with React and Motion.</p>
+</header>
+
+<!-- ── Filters ────────────────────────────────────────────────────────── -->
+<div class="filters">
+  <button class="fbtn active" data-c="all">All &nbsp;<span id="cnt-all"></span></button>
+  <button class="fbtn" data-c="text">Text Effects &nbsp;<span id="cnt-text"></span></button>
+  <button class="fbtn" data-c="bg">Backgrounds &nbsp;<span id="cnt-bg"></span></button>
+  <button class="fbtn" data-c="ui">UI Blocks &nbsp;<span id="cnt-ui"></span></button>
+  <button class="fbtn" data-c="kokonutui">KokonutUI &nbsp;<span id="cnt-kokonutui"></span></button>
+</div>
+
+<!-- ── Grid ──────────────────────────────────────────────────────────── -->
+<main id="grid">
+  <p id="empty">No components match your search.</p>
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────────────── -->
+<footer>
+  Built with <a href="#">React</a> &nbsp;&middot;&nbsp;
+  <a href="#">motion/react</a> &nbsp;&middot;&nbsp;
+  <a href="#">anime.js</a>
+  &nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+  Source files in <code>/components</code>
+</footer>
+
+<script>
+// ── Component Data ────────────────────────────────────────────────────────
+// [name, category, description, previewType]
+const DATA = [
+  // TEXT EFFECTS (17)
+  ["BlurText",       "text", "Blur entrance by word or character on scroll",           "blur"],
+  ["DecryptedText",  "text", "Matrix-style character decode on reveal",                "glitch"],
+  ["GradientText",   "text", "Smooth animated multi-color gradient across text",       "gradient"],
+  ["GlitchText",     "text", "RGB channel split glitch effect",                        "glitch"],
+  ["FuzzyText",      "text", "Depth-of-field fuzzy blur text animation",               "blur"],
+  ["MaskedHeading",  "text", "Scroll-linked text mask reveal animation",               "shimmer"],
+  ["RotatingText",   "text", "Rotates smoothly between multiple word strings",         "flip"],
+  ["ScrambledText",  "text", "Scrambles characters then resolves on hover",            "glitch"],
+  ["ShinyText",      "text", "Metallic light sweep shimmer across text",               "shimmer"],
+  ["SplitFlapText",  "text", "Mechanical split-flap departure board effect",           "flip"],
+  ["SplitText",      "text", "Splits text into chars or words for stagger entry",      "blur"],
+  ["TextLoop",       "text", "Loops through multiple words with smooth transition",    "flip"],
+  ["TextType",       "text", "Typewriter effect with configurable speed and cursor",   "cursor"],
+  ["TrueFocus",      "text", "Depth-of-field focus animation across each word",        "blur"],
+  ["CountUp",        "text", "Animates numbers from zero up to a target value",        "count"],
+  ["ScrollVelocity", "text", "Text speed and parallax tied to scroll velocity",        "shimmer"],
+  ["ScrollReveal",   "text", "Reveals and animates text as it enters the viewport",   "blur"],
+
+  // BACKGROUNDS (9)
+  ["Aurora",         "bg", "Multi-color aurora borealis gradient animation",           "aurora"],
+  ["Beams",          "bg", "Animated vertical light beam rays",                        "beams"],
+  ["DotGrid",        "bg", "Animated interactive dot grid",                            "dots"],
+  ["GridMotion",     "bg", "Grid that shifts and moves with scroll",                   "dots"],
+  ["Iridescence",    "bg", "Rainbow iridescent shifting color surface",                "aurora"],
+  ["Noise",          "bg", "Photographic film grain noise texture overlay",            "noise"],
+  ["Particles",      "bg", "Floating animated particle field",                         "particles"],
+  ["Silk",           "bg", "Smooth silky fluid flowing gradient",                      "aurora"],
+  ["Waves",          "bg", "Animated SVG wave layers",                                 "waves"],
+
+  // UI BLOCKS (20)
+  ["AnimatedContent","ui", "Wrapper that animates children on mount or change",        "list"],
+  ["AnimatedList",   "ui", "Staggered list with spring enter and exit animations",     "list"],
+  ["BorderGlow",     "ui", "Glowing animated border around any container",             "glow"],
+  ["BounceCards",    "ui", "Cards with spring physics bounce on hover",                "card"],
+  ["Carousel",       "ui", "Smooth drag-to-scroll carousel with snap",                 "list"],
+  ["ElasticSlider",  "ui", "Stretchy elastic range slider with haptic snap",           "button"],
+  ["FadeContent",    "ui", "Fades and slides content in on scroll entry",              "list"],
+  ["GlareHover",     "ui", "Light glare reflection that follows cursor inside card",   "glow"],
+  ["GlassSurface",   "ui", "Frosted glass morphism container with blur",               "glass"],
+  ["LogoLoop",       "ui", "Infinite horizontal scrolling logo marquee",               "list"],
+  ["MagicBento",     "ui", "Interactive bento grid with mouse-tracking glow",          "card"],
+  ["Masonry",        "ui", "Variable-height masonry grid layout",                      "card"],
+  ["ProfileCard",    "ui", "Animated profile card with 3D tilt and glow",             "glass"],
+  ["ScrollFloat",    "ui", "Elements float and shift their position on scroll",        "card"],
+  ["ScrollStack",    "ui", "Cards that pin and physically stack as you scroll",        "card"],
+  ["SpotlightCard",  "ui", "Spotlight cursor effect inside an interactive card",       "glow"],
+  ["Stack",          "ui", "Stacked card deck that fans out on hover",                 "card"],
+  ["StarBorder",     "ui", "Animated star particles orbit along the border",           "glow"],
+  ["Stepper",        "ui", "Animated step-by-step progress indicator",                 "list"],
+  ["TiltedCard",     "ui", "3D perspective tilt that tracks mouse position",           "card"],
+
+  // KOKONUTUI - BUTTONS (6)
+  ["attract-button",    "kokonutui", "Magnetic button that pulls toward the cursor",   "button"],
+  ["gradient-button",   "kokonutui", "Button with animated gradient fill on hover",    "button"],
+  ["particle-button",   "kokonutui", "Particles burst from the button on click",       "button"],
+  ["slide-text-button", "kokonutui", "Text slides and swaps on hover interaction",     "button"],
+  ["hold-button",       "kokonutui", "Hold-to-confirm with animated progress fill",    "button"],
+  ["social-button",     "kokonutui", "OAuth social login button variants",             "button"],
+
+  // KOKONUTUI - TEXT (8)
+  ["dynamic-text",  "kokonutui", "Text that morphs between different display states",  "flip"],
+  ["glitch-text",   "kokonutui", "Heavy multi-layer glitch distortion text",           "glitch"],
+  ["matrix-text",   "kokonutui", "Matrix digital rain character fall animation",       "glitch"],
+  ["scroll-text",   "kokonutui", "Text that reacts and scrolls with page velocity",    "shimmer"],
+  ["shimmer-text",  "kokonutui", "Metallic shimmer sweep across text",                 "shimmer"],
+  ["sliced-text",   "kokonutui", "Text sliced into offset layers that slide apart",    "flip"],
+  ["swoosh-text",   "kokonutui", "Swoosh entrance motion animation on text",           "blur"],
+  ["type-writer",   "kokonutui", "Typewriter effect with blinking cursor",             "cursor"],
+
+  // KOKONUTUI - CARDS (8)
+  ["bento-grid",        "kokonutui", "Asymmetric bento-style interactive content grid","card"],
+  ["card-flip",         "kokonutui", "3D flip card with front and back faces",         "flip"],
+  ["card-stack",        "kokonutui", "Draggable stacked card deck interaction",        "card"],
+  ["carousel-cards",    "kokonutui", "3D perspective carousel with angled cards",      "list"],
+  ["liquid-glass-card", "kokonutui", "Apple-inspired liquid glass morphism card",      "glass"],
+  ["mouse-effect-card", "kokonutui", "Card that distorts and reacts to cursor",        "glow"],
+  ["spotlight-cards",   "kokonutui", "Grid of cards with a shared spotlight cursor",   "glow"],
+  ["tweet-card",        "kokonutui", "Beautifully styled tweet embed card",            "glass"],
+
+  // KOKONUTUI - BACKGROUNDS (4)
+  ["background-paths", "kokonutui", "Animated SVG path lines background",              "waves"],
+  ["beams-background", "kokonutui", "Diagonal light beam grid background",             "beams"],
+  ["flow-field",       "kokonutui", "Perlin noise flow field particle system",         "particles"],
+  ["shape-hero",       "kokonutui", "Morphing geometric blob shapes hero background",  "shape"],
+
+  // KOKONUTUI - NAV & UI (8)
+  ["action-search-bar", "kokonutui", "Animated expandable command search bar",         "button"],
+  ["morphic-navbar",    "kokonutui", "Navbar that morphs shape and size on scroll",    "glass"],
+  ["profile-dropdown",  "kokonutui", "Smooth animated profile dropdown menu",          "glass"],
+  ["smooth-drawer",     "kokonutui", "Fluid slide-in drawer panel with overlay",       "glass"],
+  ["smooth-tab",        "kokonutui", "Tabs with smooth sliding active indicator",      "button"],
+  ["toolbar",           "kokonutui", "Floating toolbar with expandable action icons",  "glass"],
+  ["loader",            "kokonutui", "Collection of loading spinner animations",       "button"],
+  ["file-upload",       "kokonutui", "Animated drag-and-drop file upload zone",        "glass"],
+];
+
+// ── Particle Preview Builder ───────────────────────────────────────────────
+function makeParticles() {
+  const dots = Array.from({length: 14}, () => {
+    const x = (Math.random() * 80 + 10).toFixed(0);
+    const y = (Math.random() * 80 + 10).toFixed(0);
+    const d = (Math.random() * 2 + 1.5).toFixed(1);
+    const tx = (Math.random() * 18 - 9).toFixed(0);
+    const ty = (Math.random() * 18 - 9).toFixed(0);
+    const s = Math.random() > .65 ? 4 : 2;
+    const dl = (Math.random() * 2).toFixed(1);
+    return `<div class="dot" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;--d:${d}s;--x:${tx}px;--y:${ty}px;animation-delay:${dl}s"></div>`;
+  });
+  return `<div class="p-particles">${dots.join('')}</div>`;
+}
+
+// ── Preview HTML Builder ───────────────────────────────────────────────────
+function buildPreview(type, name) {
+  // Cut at a natural word boundary from camelCase or kebab-case
+  const firstWord = name.replace(/[-_]/g, ' ').trim().split(/(?=[A-Z])| /)[0];
+  const short = firstWord.length > 2 ? firstWord : name.slice(0, 6);
+  const label = short.charAt(0).toUpperCase() + short.slice(1);
+  switch (type) {
+    case 'blur':      return `<div class="p-blur"><span class="pt">${short}</span></div>`;
+    case 'gradient':  return `<div class="p-gradient"><span class="pt">${short}</span></div>`;
+    case 'glitch':    return `<div class="p-glitch"><span class="pt">${short}</span></div>`;
+    case 'shimmer':   return `<div class="p-shimmer"><span class="pt">${short}</span></div>`;
+    case 'flip':      return `<div class="p-flip"><span class="pt">${short}</span></div>`;
+    case 'cursor':    return `<div class="p-cursor"><span class="pt">Hello, world...</span></div>`;
+    case 'count':     return `<div class="p-count"><span class="pt count-el">0</span></div>`;
+    case 'aurora':    return `<div class="p-aurora"></div>`;
+    case 'beams':     return `<div class="p-beams"></div>`;
+    case 'dots':      return `<div class="p-dots"></div>`;
+    case 'particles': return makeParticles();
+    case 'waves':     return `<div class="p-waves"></div>`;
+    case 'noise':     return `<div class="p-noise"></div>`;
+    case 'card':      return `<div class="p-card"><div class="mini-card"><div class="mc-line"></div><div class="mc-line"></div><div class="mc-line"></div></div></div>`;
+    case 'glass':     return `<div class="p-glass"><div class="mini-glass"><div class="mg-line"></div><div class="mg-line"></div></div></div>`;
+    case 'glow':      return `<div class="p-glow"><div class="mini-glow">${label}</div></div>`;
+    case 'button':    return `<div class="p-button"><div class="mini-btn">${label}</div></div>`;
+    case 'list':      return `<div class="p-list"><div class="ml-row"><div class="ml-dot"></div><div class="ml-bar"></div></div><div class="ml-row"><div class="ml-dot"></div><div class="ml-bar"></div></div><div class="ml-row"><div class="ml-dot"></div><div class="ml-bar"></div></div><div class="ml-row"><div class="ml-dot"></div><div class="ml-bar"></div></div></div>`;
+    case 'shape':     return `<div class="p-shape"><div class="mini-shape"></div></div>`;
+    default:          return `<div class="p-card"><div class="mini-card"><div class="mc-line"></div><div class="mc-line"></div></div></div>`;
+  }
+}
+
+// ── Count Animation ────────────────────────────────────────────────────────
+function runCount(el) {
+  const target = Math.floor(Math.random() * 850) + 150;
+  let cur = 0;
+  const step = target / 55;
+  const id = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = Math.floor(cur).toLocaleString();
+    if (cur >= target) { clearInterval(id); setTimeout(() => { cur = 0; el.textContent = '0'; runCount(el); }, 1200); }
+  }, 16);
+}
+
+// ── Badge Label ────────────────────────────────────────────────────────────
+function badgeLabel(cat) {
+  if (cat === 'text') return ['badge-text', 'Text'];
+  if (cat === 'bg')   return ['badge-bg',   'Background'];
+  if (cat === 'ui')   return ['badge-ui',   'UI Block'];
+  return ['badge-kokonutui', 'KokonutUI'];
+}
+
+// ── Import Path ────────────────────────────────────────────────────────────
+function importPath(name, cat) {
+  return cat === 'kokonutui'
+    ? `components/kokonutui/${name}`
+    : `components/${name}/${name}`;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render(filter, query) {
+  const grid  = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  grid.querySelectorAll('.card').forEach(el => el.remove());
+
+  const q = (query || '').toLowerCase().trim();
+  let n = 0;
+
+  DATA.forEach(([name, cat, desc, prev]) => {
+    if (filter !== 'all' && cat !== filter) return;
+    if (q && !name.toLowerCase().includes(q) && !desc.toLowerCase().includes(q)) return;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${n * 18}ms`;
+
+    const [bcls, blabel] = badgeLabel(cat);
+    const path = importPath(name, cat);
+
+    card.innerHTML = `
+      <div class="preview">${buildPreview(prev, name)}</div>
+      <div class="card-body">
+        <div class="card-name">${name}</div>
+        <div class="card-desc">${desc}</div>
+        <div class="card-foot">
+          <span class="badge ${bcls}">${blabel}</span>
+          <button class="cpbtn" data-path="${path}">copy path</button>
+        </div>
+      </div>`;
+
+    grid.appendChild(card);
+    n++;
+
+    // Kick off count animation when it enters view
+    if (prev === 'count') {
+      const el = card.querySelector('.count-el');
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { runCount(el); obs.disconnect(); }
+      });
+      obs.observe(el);
+    }
+  });
+
+  document.getElementById('nav-count').textContent = `${n} component${n !== 1 ? 's' : ''}`;
+  empty.style.display = n === 0 ? 'block' : 'none';
+}
+
+// ── Filter Counts ──────────────────────────────────────────────────────────
+function updateCounts() {
+  const cats = { all: DATA.length, text: 0, bg: 0, ui: 0, kokonutui: 0 };
+  DATA.forEach(([, cat]) => { if (cats[cat] !== undefined) cats[cat]++; });
+  Object.entries(cats).forEach(([k, v]) => {
+    const el = document.getElementById(`cnt-${k}`);
+    if (el) el.textContent = `(${v})`;
+  });
+}
+
+// ── Events ─────────────────────────────────────────────────────────────────
+let activeFilter = 'all';
+let searchQ = '';
+
+document.querySelectorAll('.fbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.c;
+    render(activeFilter, searchQ);
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQ = e.target.value;
+  render(activeFilter, searchQ);
+});
+
+document.getElementById('grid').addEventListener('click', e => {
+  const btn = e.target.closest('.cpbtn');
+  if (!btn) return;
+  navigator.clipboard.writeText(btn.dataset.path).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'copy path'; btn.classList.remove('ok'); }, 2000);
+  }).catch(() => {
+    btn.textContent = btn.dataset.path;
+    setTimeout(() => { btn.textContent = 'copy path'; }, 3000);
+  });
+});
+
+// ── Init ────────────────────────────────────────────────────────────────────
+updateCounts();
+render('all', '');
+</script>
+</body>
+</html>
