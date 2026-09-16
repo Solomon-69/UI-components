@@ -3,10 +3,12 @@ import { ContactShadows, Environment, useGLTF, useTexture } from '@react-three/d
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
-const MODEL = '/models/iphone.glb'
-const DRACO = '/draco/'
-const TEXTURE = '/screens/hero-texture.webp'
-const HDR = '/hdr/studio.hdr'
+// Public assets are addressed from the deploy base so the site also works under a sub-path (GitHub Pages).
+const BASE = import.meta.env.BASE_URL
+const MODEL = `${BASE}models/iphone.glb`
+const DRACO = `${BASE}draco/`
+const TEXTURE = `${BASE}screens/hero-texture.webp`
+const HDR = `${BASE}hdr/studio.hdr`
 
 // Motion spec: Y-axis swivel only, 0 -> +35 -> 0 -> -35 -> 0 on a sine, one cycle every 9s,
 // with a constant -5deg lean on X. Nothing else moves.

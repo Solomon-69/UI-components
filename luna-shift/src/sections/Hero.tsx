@@ -113,7 +113,7 @@ export function Hero() {
                 }}
               >
                 <img
-                  src={mode === 'static' ? '/hero-phone-static.webp' : '/hero-phone-front.webp'}
+                  src={`${import.meta.env.BASE_URL}${mode === 'static' ? 'hero-phone-static.webp' : 'hero-phone-front.webp'}`}
                   alt=""
                   width={1120}
                   height={1400}

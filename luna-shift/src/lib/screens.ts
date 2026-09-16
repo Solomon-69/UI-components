@@ -30,4 +30,4 @@ export const screenAlt: Record<ScreenId, string> = {
   'paced-breathing': 'Paced breathing exercise: breathe out, cycle 4 of 9, 14 sessions and 41 calm minutes',
 }
 
-export const screenSrc = (id: ScreenId, w: 520 | 900) => `/screens/${id}-${w}.webp`
+export const screenSrc = (id: ScreenId, w: 520 | 900) => `${import.meta.env.BASE_URL}screens/${id}-${w}.webp`
