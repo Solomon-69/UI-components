@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
 import { PhoneTrio, type TrioVariant } from '../components/PhoneTrio'
 import { Reveal } from '../components/Reveal'
@@ -41,7 +42,7 @@ const GROUPS: Group[] = [
       </>
     ),
     screens: ['patterns-calendar-hot-flash', 'patterns-trend-time-of-day', 'patterns-night-sweat-trend'],
-    variant: 'lean',
+    variant: 'row',
     layout: 'wide',
   },
   {
@@ -62,21 +63,39 @@ const GROUPS: Group[] = [
   },
 ]
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 function Copy({ group, className = '' }: { group: Group; className?: string }) {
+  const reduce = useReducedMotion()
   return (
-    <Reveal className={className}>
-      <h2 id={`${group.id}-title`} className="text-[clamp(1.9rem,3.2vw,2.6rem)] leading-[1.1] text-ink">
-        {group.title}
-      </h2>
-      <p className="mt-5 max-w-[40ch] text-[1.04rem] leading-relaxed text-muted">{group.body}</p>
-    </Reveal>
+    <div className={className}>
+      {/* headline rises out of a clipped line, then the body follows. The h2 is observed
+          (the clipped span never intersects the viewport while it sits below the line). */}
+      <motion.h2
+        id={`${group.id}-title`}
+        className="-mb-[0.14em] overflow-hidden pb-[0.14em] text-[clamp(2rem,3.4vw,2.8rem)] leading-[1.1] text-ink"
+        initial={reduce ? false : 'hidden'}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.8 }}
+      >
+        <motion.span
+          className="block"
+          variants={{ hidden: { y: '110%' }, show: { y: 0, transition: { duration: 1.1, ease: EASE } } }}
+        >
+          {group.title}
+        </motion.span>
+      </motion.h2>
+      <Reveal delay={0.18} y={26} amount={0.5}>
+        <p className="mt-5 max-w-[40ch] text-[1.04rem] leading-relaxed text-muted">{group.body}</p>
+      </Reveal>
+    </div>
   )
 }
 
 function FeatureGroup({ group }: { group: Group }) {
   const trio = <PhoneTrio screens={group.screens} variant={group.variant} sizes={SIZES[group.layout]} />
   return (
-    <section id={group.id} className="scroll-mt-24 py-16 md:py-24 lg:py-28" aria-labelledby={`${group.id}-title`}>
+    <section id={group.id} className="scroll-mt-24 py-20 md:py-28 lg:py-36" aria-labelledby={`${group.id}-title`}>
       <div className="container-x">
         {group.layout === 'split-right' && (
           <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">

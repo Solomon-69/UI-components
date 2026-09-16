@@ -1,4 +1,4 @@
-import { motion, useInView, useReducedMotion } from 'motion/react'
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { Component, lazy, Suspense, useCallback, useRef, useState, type ErrorInfo, type ReactNode } from 'react'
 import { Pause, Play } from '@phosphor-icons/react'
 import { Button } from '../components/Button'
@@ -44,7 +44,14 @@ export function Hero() {
   const [staticGone, setStaticGone] = useState(false)
   const [paused, setPaused] = useState(false)
   const stage = useRef<HTMLDivElement>(null)
+  const section = useRef<HTMLElement>(null)
   const inView = useInView(stage, { amount: 0.05 })
+  // Scrolling away from the hero eases the phone down and back while the copy lifts and fades.
+  const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end start'] })
+  const stageY = useTransform(scrollYProgress, [0, 1], [0, 150])
+  const stageScale = useTransform(scrollYProgress, [0, 1], [1, 0.93])
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, 90])
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0])
   const mode = !reduce && webgl && !failed ? '3d' : 'static'
   const [capture] = useState<CapturePose>(() => {
     if (!import.meta.env.DEV) return null
@@ -57,10 +64,11 @@ export function Hero() {
   const showStatic = mode === 'static' || !ready
 
   return (
-    <section className="relative isolate flex items-center pt-24 pb-16 md:pt-28 md:pb-20 lg:min-h-[100svh]">
+    <section ref={section} className="relative isolate flex items-center pt-24 pb-16 md:pt-28 md:pb-20 lg:min-h-[100svh]">
       <div className="container-x grid items-center gap-10 lg:grid-cols-12 lg:gap-6">
         <motion.div
           className="lg:col-span-6"
+          style={reduce ? undefined : { y: copyY, opacity: copyOpacity }}
           variants={stagger}
           initial={reduce ? false : 'hidden'}
           animate="show"
@@ -84,7 +92,7 @@ export function Hero() {
           </motion.div>
         </motion.div>
 
-        <div className="lg:col-span-6">
+        <motion.div className="lg:col-span-6" style={reduce ? undefined : { y: stageY, scale: stageScale }}>
           <div ref={stage} className="hero-stage" role="img" aria-label={HERO_ALT}>
             {mode === '3d' && (
               <SceneBoundary onError={onError}>
@@ -130,7 +138,7 @@ export function Hero() {
               </button>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

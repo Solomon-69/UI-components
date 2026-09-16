@@ -1,51 +1,86 @@
-import { motion, useReducedMotion } from 'motion/react'
-import type { CSSProperties } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react'
+import { useRef, type CSSProperties, type ReactNode } from 'react'
 import { Phone } from './Phone'
 import type { ScreenId } from '../lib/screens'
 
-export type TrioVariant = 'stepped' | 'fan' | 'cascade' | 'lean'
+export type TrioVariant = 'stepped' | 'row' | 'cascade' | 'fan'
 
-type Slot = { x: string; y: string; r: string; s: number; z: number }
+type Depth = 1 | 2 | 3
+type Slot = { x: string; y: string; s: number; z: Depth }
 
-// Desktop arrangements. Ratios are sized so every phone stays inside the box.
-// Mobile collapses to a stacked column in CSS (.trio media query).
+// Desktop arrangements. Every phone stands upright: depth and rhythm come from
+// offset, scale and overlap, never from rotation. Ratios keep each phone inside
+// the box. Mobile collapses to a stacked column in CSS (.trio media query).
 const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
-  // staircase: left low, right high, right in front
+  // staircase: left low and back, right high and in front
   stepped: {
-    ratio: '16 / 14',
+    ratio: '16 / 14.6',
     slots: [
-      { x: '4%', y: '18%', r: '-6deg', s: 0.94, z: 1 },
-      { x: '34%', y: '8%', r: '0deg', s: 1, z: 2 },
-      { x: '64%', y: '-2%', r: '6deg', s: 0.94, z: 3 },
+      { x: '2%', y: '22%', s: 0.94, z: 1 },
+      { x: '34%', y: '11%', s: 0.97, z: 2 },
+      { x: '66%', y: '0%', s: 1, z: 3 },
     ],
   },
-  // centre phone forward, two tucked behind
-  fan: {
-    ratio: '16 / 12.4',
-    slots: [
-      { x: '10%', y: '12%', r: '-9deg', s: 0.9, z: 1 },
-      { x: '34%', y: '2%', r: '0deg', s: 1.02, z: 3 },
-      { x: '58%', y: '12%', r: '9deg', s: 0.9, z: 1 },
-    ],
-  },
-  // fanned deck: heavy overlap, each phone a little lower and more upright than the last
-  cascade: {
-    ratio: '16 / 13.4',
-    slots: [
-      { x: '3%', y: '0%', r: '-9deg', s: 0.94, z: 1 },
-      { x: '33%', y: '7%', r: '-2deg', s: 0.98, z: 2 },
-      { x: '63%', y: '14%', r: '5deg', s: 1, z: 3 },
-    ],
-  },
-  // all leaning the same way, overlapping like a row of cards mid-shuffle
-  lean: {
+  // symmetric row: centre forward and taller, sides a step behind
+  row: {
     ratio: '16 / 12.6',
     slots: [
-      { x: '6%', y: '14%', r: '-12deg', s: 0.96, z: 1 },
-      { x: '34%', y: '6%', r: '-12deg', s: 1, z: 2 },
-      { x: '62%', y: '-2%', r: '-12deg', s: 0.96, z: 3 },
+      { x: '3%', y: '9%', s: 0.92, z: 1 },
+      { x: '34%', y: '0%', s: 1, z: 3 },
+      { x: '65%', y: '9%', s: 0.92, z: 2 },
     ],
   },
+  // descending deck: left in front, each next phone a little lower and further back
+  cascade: {
+    ratio: '16 / 14.6',
+    slots: [
+      { x: '4%', y: '0%', s: 1, z: 3 },
+      { x: '33%', y: '8%', s: 0.97, z: 2 },
+      { x: '62%', y: '16%', s: 0.94, z: 1 },
+    ],
+  },
+  // centre phone large and forward, two tucked lower behind it
+  fan: {
+    ratio: '16 / 13.2',
+    slots: [
+      { x: '7%', y: '13%', s: 0.9, z: 1 },
+      { x: '34%', y: '0%', s: 1.04, z: 3 },
+      { x: '61%', y: '13%', s: 0.9, z: 1 },
+    ],
+  },
+}
+
+// Nearer phones drift further as the section scrolls past, which reads as depth.
+const DRIFT: Record<Depth, number> = { 1: 0.35, 2: 0.65, 3: 1 }
+const DRIFT_PX = 64
+
+const EASE = [0.16, 1, 0.3, 1] as const
+
+type SlotProps = {
+  slot: Slot
+  progress: MotionValue<number>
+  reduce: boolean
+  children: ReactNode
+}
+
+function TrioSlot({ slot, progress, reduce, children }: SlotProps) {
+  const drift = DRIFT_PX * DRIFT[slot.z]
+  const y = useTransform(progress, [0, 1], [drift, -drift])
+  const style = { '--x': slot.x, '--y': slot.y, '--s': slot.s, '--z': slot.z } as CSSProperties
+  return (
+    <div className="slot" style={style}>
+      <motion.div style={reduce ? undefined : { y }}>
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 80, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1.25, ease: EASE, delay: 0.12 * (slot.z - 1) }}
+        >
+          {children}
+        </motion.div>
+      </motion.div>
+    </div>
+  )
 }
 
 type Props = {
@@ -55,29 +90,18 @@ type Props = {
   className?: string
 }
 
-const EASE = [0.16, 1, 0.3, 1] as const
-
 export function PhoneTrio({ screens, variant = 'stepped', sizes, className = '' }: Props) {
-  const reduce = useReducedMotion()
+  const reduce = useReducedMotion() ?? false
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const layout = LAYOUTS[variant]
   return (
-    <div className={`trio ${className}`} style={{ '--trio-ratio': layout.ratio } as CSSProperties}>
-      {screens.map((screen, i) => {
-        const s = layout.slots[i] ?? layout.slots[0]!
-        const style = { '--x': s.x, '--y': s.y, '--r': s.r, '--s': s.s, '--z': s.z } as CSSProperties
-        return (
-          <div key={screen} className="slot" style={style}>
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 56 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 1.05, ease: EASE, delay: 0.08 * (s.z - 1) }}
-            >
-              <Phone screen={screen} sizes={sizes} />
-            </motion.div>
-          </div>
-        )
-      })}
+    <div ref={ref} className={`trio ${className}`} style={{ '--trio-ratio': layout.ratio } as CSSProperties}>
+      {screens.map((screen, i) => (
+        <TrioSlot key={screen} slot={layout.slots[i] ?? layout.slots[0]!} progress={scrollYProgress} reduce={reduce}>
+          <Phone screen={screen} sizes={sizes} />
+        </TrioSlot>
+      ))}
     </div>
   )
 }

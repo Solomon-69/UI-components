@@ -1,4 +1,5 @@
 import { CloudSlash, HandCoins, LockKey, UserCircleMinus, type Icon } from '@phosphor-icons/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { Reveal } from '../components/Reveal'
 import { BRAND } from '../site'
 
@@ -9,7 +10,10 @@ const PROMISES: { icon: Icon; title: string; body: string }[] = [
   { icon: HandCoins, title: 'Nothing sold', body: 'Not to advertisers, not to data brokers, not to anyone.' },
 ]
 
+const EASE = [0.16, 1, 0.3, 1] as const
+
 export function Privacy() {
+  const reduce = useReducedMotion()
   return (
     <section id="privacy" className="scroll-mt-24 py-16 md:py-24 lg:py-28" aria-labelledby="privacy-title">
       <div className="container-x">
@@ -25,8 +29,12 @@ export function Privacy() {
             </div>
             <ul className="lg:col-span-7 lg:pl-8">
               {PROMISES.map(({ icon: I, title, body }, i) => (
-                <li
+                <motion.li
                   key={title}
+                  initial={reduce ? false : { opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.9, ease: EASE, delay: 0.1 + i * 0.1 }}
                   className={`flex gap-5 py-6 ${i > 0 ? 'border-t border-[var(--panel-line)]' : 'lg:pt-0'} ${i === PROMISES.length - 1 ? 'lg:pb-0' : ''}`}
                 >
                   <span className="mt-0.5 grid size-11 shrink-0 place-items-center rounded-full bg-on-panel/10">
@@ -36,7 +44,7 @@ export function Privacy() {
                     <h3 className="font-sans text-[1.08rem] font-medium">{title}</h3>
                     <p className="mt-1 text-[0.98rem] leading-relaxed text-panel-muted">{body}</p>
                   </div>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
