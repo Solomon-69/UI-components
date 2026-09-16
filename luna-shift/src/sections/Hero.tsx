@@ -89,7 +89,8 @@ export function Hero() {
             {mode === '3d' && (
               <SceneBoundary onError={onError}>
                 <Suspense fallback={null}>
-                  <div className="stage-layer" style={{ opacity: ready ? 1 : 0 }}>
+                  {/* Opaque from the start: the canvas is transparent until the scene resolves, and only the placeholder above it fades. */}
+                  <div className="stage-layer">
                     <HeroScene active={inView && !paused} onReady={onReady} onError={onError} capture={capture} />
                   </div>
                 </Suspense>
@@ -125,7 +126,7 @@ export function Hero() {
                 className="inline-flex items-center gap-2 rounded-pill border border-ink/30 bg-tint px-3 py-1.5 text-[0.82rem] font-medium text-muted transition-opacity duration-300 hover:text-ink disabled:opacity-0"
               >
                 {paused ? <Play weight="fill" className="size-3.5" aria-hidden="true" /> : <Pause weight="fill" className="size-3.5" aria-hidden="true" />}
-                <span>{paused ? 'Play animation' : 'Pause animation'}</span>
+                <span>Pause animation</span>
               </button>
             </div>
           )}

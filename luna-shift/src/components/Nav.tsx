@@ -5,7 +5,6 @@ import { site } from '../site'
 export function Nav() {
   return (
     <header
-      id="top"
       className="fixed inset-x-0 top-0 z-30 border-b border-line/60 bg-[color-mix(in_oklab,var(--bg)_74%,transparent)] backdrop-blur-md"
     >
       <div className="container-x flex h-16 items-center justify-between">

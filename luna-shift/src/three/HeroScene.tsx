@@ -60,7 +60,7 @@ function materialFor(name: string, screen: THREE.Texture, cache: Map<string, THR
   return m
 }
 
-function PhoneModel({ onReady, capture }: { onReady: () => void; capture: CapturePose }) {
+function PhoneModel({ onReady, capture, active }: { onReady: () => void; capture: CapturePose; active: boolean }) {
   const { scene } = useGLTF(MODEL, DRACO)
   const screen = useTexture(TEXTURE, (t) => {
     t.flipY = false
@@ -143,6 +143,7 @@ function PhoneModel({ onReady, capture }: { onReady: () => void; capture: Captur
       g.rotation.set(TILT, capture === 'angle' ? STATIC_YAW : 0, 0)
       return
     }
+    if (!active) return // paused or offscreen: a demand-mode repaint must not advance the swivel
     // Local clock: fiber resets its clock whenever frameloop toggles, which would snap the phone.
     time.current += Math.min(dt, 0.1)
     g.rotation.set(TILT, MAX_YAW * Math.sin((Math.PI * 2 * time.current) / PERIOD), 0)
@@ -182,7 +183,7 @@ export default function HeroScene({ active, onReady, onError, capture = null }: 
       <directionalLight position={[-4, 2, 3]} intensity={0.5} color="#f1d8ce" />
       <Suspense fallback={null}>
         <Environment files={HDR} environmentIntensity={0.85} />
-        <PhoneModel onReady={onReady} capture={capture} />
+        <PhoneModel onReady={onReady} capture={capture} active={active} />
         <ContactShadows position={[0, -1.62, 0]} scale={5} blur={2.4} opacity={0.42} far={2.2} resolution={512} color="#34221e" frames={1} />
       </Suspense>
     </Canvas>

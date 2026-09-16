@@ -11,7 +11,6 @@
 }
 @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/poppins-latin-400-normal.woff2') format('woff2'); }
 @font-face { font-family: 'Poppins'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/poppins-latin-500-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Poppins'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/poppins-latin-600-normal.woff2') format('woff2'); }
 
 /* ---------- Brand tokens (light default) ---------- */
 :root {
@@ -303,15 +302,15 @@
   @media (min-width: 1024px) {
     .hero-stage {
       --stage-h: clamp(440px, 78vh, 720px);
-      height: var(--stage-h);
-      width: calc(var(--stage-h) * 0.8); /* explicit 4:5 so the placeholder and the canvas always agree */
-      max-width: 100%;
+      height: auto;
+      width: min(calc(var(--stage-h) * 0.8), 100%); /* one definite axis + aspect-ratio: always 4:5, so placeholder and canvas agree */
+      aspect-ratio: 4 / 5;
       margin-inline: auto 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .site-bg::before, .site-bg::after { animation: none; }
-    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   }
   .hero-stage > .stage-layer {
     position: absolute;
