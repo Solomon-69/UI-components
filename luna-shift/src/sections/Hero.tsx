@@ -46,8 +46,11 @@ export function Hero() {
   const stage = useRef<HTMLDivElement>(null)
   const inView = useInView(stage, { amount: 0.05 })
   const mode = !reduce && webgl && !failed ? '3d' : 'static'
-  const captureParam = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('capture') : null
-  const capture: CapturePose = captureParam === 'angle' ? 'angle' : captureParam === 'front' ? 'front' : null
+  const [capture] = useState<CapturePose>(() => {
+    if (!import.meta.env.DEV) return null
+    const v = new URLSearchParams(window.location.search).get('capture')
+    return v === 'angle' ? 'angle' : v === 'front' ? 'front' : null
+  })
 
   const onReady = useCallback(() => setReady(true), [])
   const onError = useCallback(() => setFailed(true), [])
@@ -87,7 +90,7 @@ export function Hero() {
               <SceneBoundary onError={onError}>
                 <Suspense fallback={null}>
                   <div className="stage-layer" style={{ opacity: ready ? 1 : 0 }}>
-                    <HeroScene active={inView && !paused} onReady={onReady} capture={capture} />
+                    <HeroScene active={inView && !paused} onReady={onReady} onError={onError} capture={capture} />
                   </div>
                 </Suspense>
               </SceneBoundary>
@@ -104,7 +107,7 @@ export function Hero() {
                   src={mode === 'static' ? '/hero-phone-static.webp' : '/hero-phone-front.webp'}
                   alt=""
                   width={1120}
-                  height={1401}
+                  height={1400}
                   fetchPriority="high"
                   decoding="async"
                   draggable={false}
@@ -112,12 +115,14 @@ export function Hero() {
               </div>
             )}
           </div>
-          {mode === '3d' && ready && (
-            <div className="mt-3 flex justify-center lg:justify-end">
+          {mode === '3d' && (
+            <div className="mt-3 flex min-h-9 justify-center lg:justify-end">
               <button
                 type="button"
+                disabled={!ready}
+                aria-pressed={paused}
                 onClick={() => setPaused((p) => !p)}
-                className="inline-flex items-center gap-2 rounded-pill border border-ink/30 bg-tint px-3 py-1.5 text-[0.82rem] font-medium text-muted transition-colors duration-300 hover:text-ink"
+                className="inline-flex items-center gap-2 rounded-pill border border-ink/30 bg-tint px-3 py-1.5 text-[0.82rem] font-medium text-muted transition-opacity duration-300 hover:text-ink disabled:opacity-0"
               >
                 {paused ? <Play weight="fill" className="size-3.5" aria-hidden="true" /> : <Pause weight="fill" className="size-3.5" aria-hidden="true" />}
                 <span>{paused ? 'Play animation' : 'Pause animation'}</span>

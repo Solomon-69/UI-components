@@ -15,10 +15,14 @@ const ISLAND = Buffer.from(
 )
 const withIsland = (file) => sharp(file).composite([{ input: ISLAND, top: 0, left: 0 }])
 
-const files = (await readdir(SRC)).filter((f) => /\.(png|jpe?g)$/i.test(f))
+// Only the captures the site actually uses (see src/lib/screens.ts).
+const IDS = ['today-home-hero','today-timeline-and-factors','hormone-therapy-overview','patterns-calendar-hot-flash','patterns-trend-time-of-day','patterns-night-sweat-trend','patterns-sleep-and-heart','insights-weekly-summary','insights-whats-shifting','log-a-dose','symptom-check-in','settings-and-connections','paced-breathing']
+const files = (await readdir(SRC)).filter((f) => /\.(png|jpe?g)$/i.test(f) && IDS.includes(f.replace(/\.(png|jpe?g)$/i, '')))
 for (const f of files) {
   const base = f.replace(/\.(png|jpe?g)$/i, '')
   const src = path.join(SRC, f)
+  const meta = await sharp(src).metadata()
+  if (meta.width !== 1206 || meta.height !== 2622) throw new Error(`${f} is ${meta.width}x${meta.height}; captures must be 1206x2622`)
   const full = await withIsland(src).png().toBuffer()
   await sharp(full).resize({ width: 520 }).webp({ quality: 82 }).toFile(path.join(OUT, `${base}-520.webp`))
   await sharp(full).resize({ width: 900 }).webp({ quality: 82 }).toFile(path.join(OUT, `${base}-900.webp`))
@@ -26,6 +30,7 @@ for (const f of files) {
 }
 // Hero texture: 1206 wide keeps text crisp on the 3D screen at DPR 2.
 const heroName = files.find((f) => f.startsWith('today-home-hero'))
+if (!heroName) throw new Error('today-home-hero capture not found in ' + SRC)
 // The 3D model has its own Dynamic Island mesh, so the hero texture stays clean.
 await sharp(path.join(SRC, heroName)).webp({ quality: 90 }).toFile(path.join(OUT, 'hero-texture.webp'))
 console.log('texture ok')

@@ -21,23 +21,16 @@ export function useTheme() {
     if (choice === 'system') root.removeAttribute('data-theme')
     else root.setAttribute('data-theme', choice)
     // Browser chrome colour: on System, let each media-scoped tag keep its own colour; otherwise force both.
-    const metas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
-    const apply = () => {
-      metas.forEach((m) => {
-        const own = m.media.includes('dark') ? COLORS.dark : COLORS.light
-        m.setAttribute('content', choice === 'system' ? own : choice === 'dark' ? COLORS.dark : COLORS.light)
-      })
-    }
-    apply()
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    mq.addEventListener('change', apply)
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => {
+      const own = (m.getAttribute('media') ?? '').includes('dark') ? COLORS.dark : COLORS.light
+      m.setAttribute('content', choice === 'system' ? own : choice === 'dark' ? COLORS.dark : COLORS.light)
+    })
     try {
       if (choice === 'system') localStorage.removeItem(KEY)
       else localStorage.setItem(KEY, choice)
     } catch {
       /* storage unavailable: theme still applies for this visit */
     }
-    return () => mq.removeEventListener('change', apply)
   }, [choice])
 
   /** System -> the opposite of what the OS shows -> back to the OS look -> System. Every press changes something visible. */

@@ -36,11 +36,10 @@ async function layer({ file, fill, scale, dx, dy }) {
 let comps = []
 for (const l of LAYERS) {
   const [sh, img] = await layer(l)
-  comps.push({ input: await sharp(sh).ensureAlpha(0.35).png().toBuffer() })
+  comps.push({ input: await sharp(sh).linear([1, 1, 1, 0.35], [0, 0, 0, 0]).png().toBuffer() })
   comps.push({ input: img })
 }
 const icon = await sharp(bg).composite(comps).png().toBuffer()
-await sharp(icon).resize(512, 512).png().toFile('public/icon.png')
 await sharp(icon).resize(180, 180).png().toFile('public/apple-touch-icon.png')
 await sharp(icon).resize(64, 64).png().toFile('public/favicon.png')
 console.log('icon rendered')

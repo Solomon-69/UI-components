@@ -31,6 +31,9 @@ function materialFor(name: string, screen: THREE.Texture, cache: Map<string, THR
     case key === 'screen':
       m = new THREE.MeshBasicMaterial({ map: screen, toneMapped: false })
       break
+    case key === 'island':
+      m = new THREE.MeshPhysicalMaterial({ color: '#050403', roughness: 0.7, metalness: 0, clearcoat: 0, envMapIntensity: 0.1 })
+      break
     case key === 'bezel':
       m = new THREE.MeshPhysicalMaterial({ color: '#080605', roughness: 0.32, metalness: 0.2, clearcoat: 0.6, clearcoatRoughness: 0.25, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
       break
@@ -85,9 +88,10 @@ function PhoneModel({ onReady, capture }: { onReady: () => void; capture: Captur
         geo.translate(-c.x, -c.y, -c.z)
         o.geometry = geo
         o.position.copy(c)
+        o.position.z += 0.004 // sits above the cover glass so nothing lights it
         o.scale.set(1.04, 1.28, 1)
         o.renderOrder = 3
-        o.material = materialFor('bezel', screen, cache)
+        o.material = materialFor('island', screen, cache)
         ownedGeometries.push(geo)
         return
       }
@@ -151,12 +155,12 @@ function PhoneModel({ onReady, capture }: { onReady: () => void; capture: Captur
   )
 }
 
-type Props = { active: boolean; onReady: () => void; capture?: CapturePose }
+type Props = { active: boolean; onReady: () => void; onError: () => void; capture?: CapturePose }
 
-export default function HeroScene({ active, onReady, capture = null }: Props) {
+export default function HeroScene({ active, onReady, onError, capture = null }: Props) {
   return (
     <Canvas
-      frameloop={active ? 'always' : 'never'}
+      frameloop={active ? 'always' : 'demand'}
       dpr={capture ? 2 : [1, 2]}
       camera={{ fov: 27, position: [0, 0, 7.1], near: 0.5, far: 30 }}
       gl={{ alpha: true, antialias: true, powerPreference: 'default', preserveDrawingBuffer: capture !== null }}
@@ -164,6 +168,11 @@ export default function HeroScene({ active, onReady, capture = null }: Props) {
         gl.toneMapping = THREE.ACESFilmicToneMapping
         gl.toneMappingExposure = 1.05
         gl.setClearColor(0x000000, 0)
+        // A lost GPU context never throws; route it to the same static fallback as every other failure.
+        gl.domElement.addEventListener('webglcontextlost', (e) => {
+          e.preventDefault()
+          onError()
+        })
       }}
       style={{ background: 'transparent' }}
       aria-hidden="true"

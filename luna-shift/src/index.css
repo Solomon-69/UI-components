@@ -302,11 +302,16 @@
   }
   @media (min-width: 1024px) {
     .hero-stage {
-      width: auto;
+      --stage-h: clamp(440px, 78vh, 720px);
+      height: var(--stage-h);
+      width: calc(var(--stage-h) * 0.8); /* explicit 4:5 so the placeholder and the canvas always agree */
       max-width: 100%;
-      height: clamp(440px, 78vh, 720px);
       margin-inline: auto 0;
     }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-bg::before, .site-bg::after { animation: none; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
   }
   .hero-stage > .stage-layer {
     position: absolute;
@@ -327,7 +332,4 @@
 @keyframes drift-b {
   from { transform: translate3d(0, 0, 0) scale(1.04); }
   to   { transform: translate3d(-5vw, -6vh, 0) scale(0.96); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .site-bg::before, .site-bg::after { animation: none; }
 }
