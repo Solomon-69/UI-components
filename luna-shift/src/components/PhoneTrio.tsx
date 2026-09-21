@@ -14,7 +14,7 @@ type Slot = { x: string; y: string; s: number; z: Depth }
 const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
   // staircase: left low and back, right high and in front
   stepped: {
-    ratio: '16 / 14.6',
+    ratio: '16 / 13.3',
     slots: [
       { x: '2%', y: '22%', s: 0.94, z: 1 },
       { x: '34%', y: '11%', s: 0.97, z: 2 },
@@ -23,7 +23,7 @@ const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
   },
   // symmetric row: centre forward and taller, sides a step behind
   row: {
-    ratio: '16 / 12.6',
+    ratio: '16 / 11.35',
     slots: [
       { x: '3%', y: '9%', s: 0.92, z: 1 },
       { x: '34%', y: '0%', s: 1, z: 3 },
@@ -32,7 +32,7 @@ const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
   },
   // descending deck: left in front, each next phone a little lower and further back
   cascade: {
-    ratio: '16 / 14.6',
+    ratio: '16 / 12.4',
     slots: [
       { x: '4%', y: '0%', s: 1, z: 3 },
       { x: '33%', y: '8%', s: 0.97, z: 2 },
@@ -41,10 +41,10 @@ const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
   },
   // centre phone large and forward, two tucked lower behind it
   fan: {
-    ratio: '16 / 13.2',
+    ratio: '16 / 11.8',
     slots: [
       { x: '7%', y: '13%', s: 0.9, z: 1 },
-      { x: '34%', y: '0%', s: 1.04, z: 3 },
+      { x: '34%', y: '0%', s: 1.02, z: 3 },
       { x: '61%', y: '13%', s: 0.9, z: 1 },
     ],
   },

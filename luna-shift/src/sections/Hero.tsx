@@ -1,15 +1,8 @@
-import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react'
-import { Component, lazy, Suspense, useCallback, useRef, useState, type ErrorInfo, type ReactNode } from 'react'
-import { Pause, Play } from '@phosphor-icons/react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
+import { useRef } from 'react'
 import { Button } from '../components/Button'
-import { hasWebGL } from '../lib/hasWebGL'
+import { Phone } from '../components/Phone'
 import { site } from '../site'
-
-const HeroScene = lazy(() => import('../three/HeroScene'))
-type CapturePose = 'front' | 'angle' | null
-
-const HERO_ALT =
-  'An iPhone showing the Luna Shift Today screen, with one-tap logging for hot flash, night sweat, mood, sleep and brain fog'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 const stagger = {
@@ -21,47 +14,15 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.9, ease: EASE } },
 }
 
-/** If the model, decoder, texture or WebGL context fails, fall back to the static render instead of blanking the page. */
-class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
-  static getDerivedStateFromError() {
-    return { failed: true }
-  }
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.warn('Hero 3D scene failed, showing the static render instead.', error, info.componentStack)
-    this.props.onError()
-  }
-  render() {
-    return this.state.failed ? null : this.props.children
-  }
-}
-
 export function Hero() {
   const reduce = useReducedMotion()
-  const [webgl] = useState(() => hasWebGL())
-  const [failed, setFailed] = useState(false)
-  const [ready, setReady] = useState(false)
-  const [staticGone, setStaticGone] = useState(false)
-  const [paused, setPaused] = useState(false)
-  const stage = useRef<HTMLDivElement>(null)
   const section = useRef<HTMLElement>(null)
-  const inView = useInView(stage, { amount: 0.05 })
   // Scrolling away from the hero eases the phone down and back while the copy lifts and fades.
   const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end start'] })
   const stageY = useTransform(scrollYProgress, [0, 1], [0, 150])
   const stageScale = useTransform(scrollYProgress, [0, 1], [1, 0.93])
   const copyY = useTransform(scrollYProgress, [0, 1], [0, 90])
   const copyOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0])
-  const mode = !reduce && webgl && !failed ? '3d' : 'static'
-  const [capture] = useState<CapturePose>(() => {
-    if (!import.meta.env.DEV) return null
-    const v = new URLSearchParams(window.location.search).get('capture')
-    return v === 'angle' ? 'angle' : v === 'front' ? 'front' : null
-  })
-
-  const onReady = useCallback(() => setReady(true), [])
-  const onError = useCallback(() => setFailed(true), [])
-  const showStatic = mode === 'static' || !ready
 
   return (
     <section ref={section} className="relative isolate flex items-center pt-24 pb-16 md:pt-28 md:pb-20 lg:min-h-[100svh]">
@@ -93,51 +54,14 @@ export function Hero() {
         </motion.div>
 
         <motion.div className="lg:col-span-6" style={reduce ? undefined : { y: stageY, scale: stageScale }}>
-          <div ref={stage} className="hero-stage" role="img" aria-label={HERO_ALT}>
-            {mode === '3d' && (
-              <SceneBoundary onError={onError}>
-                <Suspense fallback={null}>
-                  {/* Opaque from the start: the canvas is transparent until the scene resolves, and only the placeholder above it fades. */}
-                  <div className="stage-layer">
-                    <HeroScene active={inView && !paused} onReady={onReady} onError={onError} capture={capture} />
-                  </div>
-                </Suspense>
-              </SceneBoundary>
-            )}
-            {(mode === 'static' || !staticGone) && (
-              <div
-                className="stage-layer"
-                style={{ opacity: showStatic ? 1 : 0, pointerEvents: 'none' }}
-                onTransitionEnd={() => {
-                  if (!showStatic) setStaticGone(true)
-                }}
-              >
-                <img
-                  src={`${import.meta.env.BASE_URL}${mode === 'static' ? 'hero-phone-static.webp' : 'hero-phone-front.webp'}`}
-                  alt=""
-                  width={1120}
-                  height={1400}
-                  fetchPriority="high"
-                  decoding="async"
-                  draggable={false}
-                />
-              </div>
-            )}
-          </div>
-          {mode === '3d' && (
-            <div className="mt-3 flex min-h-9 justify-center lg:justify-end">
-              <button
-                type="button"
-                disabled={!ready}
-                aria-pressed={paused}
-                onClick={() => setPaused((p) => !p)}
-                className="inline-flex items-center gap-2 rounded-pill border border-ink/30 bg-tint px-3 py-1.5 text-[0.82rem] font-medium text-muted transition-opacity duration-300 hover:text-ink disabled:opacity-0"
-              >
-                {paused ? <Play weight="fill" className="size-3.5" aria-hidden="true" /> : <Pause weight="fill" className="size-3.5" aria-hidden="true" />}
-                <span>Pause animation</span>
-              </button>
-            </div>
-          )}
+          <motion.div
+            className="hero-stage"
+            initial={reduce ? false : { opacity: 0, y: 40, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: EASE, delay: 0.16 }}
+          >
+            <Phone screen="today-home-hero" priority sizes="(min-width: 1024px) 350px, (min-width: 768px) 38vw, 74vw" />
+          </motion.div>
         </motion.div>
       </div>
     </section>

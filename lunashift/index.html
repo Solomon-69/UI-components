@@ -8,22 +8,25 @@
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#34221e" />
     <title>Luna Shift: private perimenopause tracking, on your phone</title>
     <meta name="description" content="Luna Shift is a private iOS app for tracking perimenopause symptoms, hormone therapy and patterns. Everything stays on your phone." />
-    <!-- TODO: replace REPLACE-WITH-YOUR-DOMAIN with the live domain before launch; social cards need absolute URLs -->
+    <!-- Social cards need absolute URLs. https://solomon-69.github.io/UI-components/lunashift/ is filled in at build time from
+         VITE_SITE_URL (see vite.config.ts); set that when you move to your own domain. -->
+    <link rel="canonical" href="https://solomon-69.github.io/UI-components/lunashift/" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://REPLACE-WITH-YOUR-DOMAIN/" />
+    <meta property="og:site_name" content="Luna Shift" />
+    <meta property="og:url" content="https://solomon-69.github.io/UI-components/lunashift/" />
     <meta property="og:title" content="Luna Shift: private perimenopause tracking" />
     <meta property="og:description" content="Track symptoms, hormone therapy and patterns in seconds. Everything stays on your phone." />
-    <meta property="og:image" content="https://REPLACE-WITH-YOUR-DOMAIN/og.jpg" />
+    <meta property="og:image" content="https://solomon-69.github.io/UI-components/lunashift/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="An iPhone showing the Luna Shift Today screen, beside the words Your perimenopause, tracked privately." />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/png" sizes="64x64" href="/UI-components/lunashift/favicon.png" />
     <link rel="apple-touch-icon" href="/UI-components/lunashift/apple-touch-icon.png" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/UI-components/lunashift/fonts/lora-latin-wght-normal.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/UI-components/lunashift/fonts/poppins-latin-400-normal.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/UI-components/lunashift/fonts/poppins-latin-500-normal.woff2" />
-    <link rel="preload" as="image" type="image/webp" href="/UI-components/lunashift/hero-phone-front.webp" fetchpriority="high" media="(prefers-reduced-motion: no-preference)" />
-    <link rel="preload" as="image" type="image/webp" href="/UI-components/lunashift/hero-phone-static.webp" fetchpriority="high" media="(prefers-reduced-motion: reduce)" />
+    <link rel="preload" as="image" type="image/webp" href="/UI-components/lunashift/screens/today-home-hero-870.webp" fetchpriority="high" />
     <script>
       // Keep the initial paint on-theme; only honours an explicit saved choice.
       try {
@@ -31,10 +34,10 @@
         if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
       } catch (e) {}
     </script>
-    <script type="module" crossorigin src="/UI-components/lunashift/assets/index-CezIGD97.js"></script>
-    <link rel="modulepreload" crossorigin href="/UI-components/lunashift/assets/rolldown-runtime-hePW80VL.js">
-    <link rel="modulepreload" crossorigin href="/UI-components/lunashift/assets/motion-GXCVbzuN.js">
-    <link rel="stylesheet" crossorigin href="/UI-components/lunashift/assets/index-BfTwcBES.css">
+    <script type="module" crossorigin src="/UI-components/lunashift/assets/index-DLCFHT3y.js"></script>
+    <link rel="modulepreload" crossorigin href="/UI-components/lunashift/assets/rolldown-runtime-CbXtAM7H.js">
+    <link rel="modulepreload" crossorigin href="/UI-components/lunashift/assets/motion-BjHa6hxG.js">
+    <link rel="stylesheet" crossorigin href="/UI-components/lunashift/assets/index-C7rSy3VB.css">
   </head>
   <body>
     <div id="root"></div>

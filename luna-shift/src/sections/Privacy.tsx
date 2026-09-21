@@ -1,5 +1,6 @@
 import { CloudSlash, HandCoins, LockKey, UserCircleMinus, type Icon } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'motion/react'
+import { Phone } from '../components/Phone'
 import { Reveal } from '../components/Reveal'
 import { BRAND } from '../site'
 
@@ -19,7 +20,7 @@ export function Privacy() {
       <div className="container-x">
         <Reveal>
           <div className="grid gap-10 rounded-card bg-panel px-7 py-10 text-on-panel md:px-14 md:py-16 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-20 lg:py-20">
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-4">
               <h2 id="privacy-title" className="text-[clamp(2rem,3.8vw,3.1rem)] leading-[1.06]">
                 Private by design.
               </h2>
@@ -27,7 +28,17 @@ export function Privacy() {
                 Everything you log stays on your phone. Not on a server, not in an account, not in anyone’s hands but yours.
               </p>
             </div>
-            <ul className="lg:col-span-7 lg:pl-8">
+            {/* The connections screen is the promise made visible: every source is opt-in. */}
+            <motion.div
+              className="mx-auto w-[62%] max-w-[230px] lg:col-span-3 lg:w-full lg:max-w-none"
+              initial={reduce ? false : { opacity: 0, y: 34 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 1, ease: EASE, delay: 0.08 }}
+            >
+              <Phone screen="settings-and-connections" sizes="(min-width: 1024px) 230px, 62vw" />
+            </motion.div>
+            <ul className="lg:col-span-5 lg:pl-6">
               {PROMISES.map(({ icon: I, title, body }, i) => (
                 <motion.li
                   key={title}

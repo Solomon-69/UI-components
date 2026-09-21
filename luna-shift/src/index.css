@@ -137,6 +137,7 @@
     scroll-behavior: smooth;
     scroll-padding-top: 5.5rem; /* keeps focused/anchored content clear of the fixed header */
     -webkit-text-size-adjust: 100%;
+    overflow-x: clip; /* belt and braces: nothing may create a sideways scroll */
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -177,7 +178,7 @@
   /* Generated background: warm wash with soft edges baked into the gradients (no blur filter) */
   .site-bg {
     position: fixed;
-    inset: -10%;
+    inset: 0;
     z-index: -1;
     pointer-events: none;
     overflow: hidden;
@@ -224,93 +225,28 @@
     background-size: 220px 220px;
   }
 
-  /* CSS iPhone: polished titanium rail with a brushed grain, side keys, black bezel,
-     a faint glass sheen over the real capture (matches the 3D hero) */
+  /* The phone image already contains the device: frame, Dynamic Island, side keys.
+     This wrapper only reserves the box and casts the shadow. */
   .phone {
     --w: 100%;
     position: relative;
-    isolation: isolate;
     width: var(--w);
-    aspect-ratio: 1206 / 2622;
-    border-radius: 17% / 7.8%;
-    padding: 1.7%;
-    background:
-      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.06) 0 1px, transparent 1px 3px),
-      conic-gradient(
-        from 210deg at 50% 50%,
-        var(--frame-a) 0deg,
-        var(--frame-b) 70deg,
-        var(--frame-c) 130deg,
-        var(--frame-b) 200deg,
-        var(--frame-a) 250deg,
-        var(--frame-b) 310deg,
-        var(--frame-a) 360deg
-      );
-    box-shadow:
-      inset 0 0 0 1px rgb(255 255 255 / 0.5),
-      inset 0 0 0 2px rgb(0 0 0 / 0.14),
-      0 44px 88px -30px rgb(var(--shadow-tint) / 0.5),
-      0 18px 36px -18px rgb(var(--shadow-tint) / 0.32),
-      0 2px 6px -2px rgb(var(--shadow-tint) / 0.2);
+    aspect-ratio: 870 / 1800;
+    filter:
+      drop-shadow(0 26px 30px rgb(var(--shadow-tint) / 0.3))
+      drop-shadow(0 5px 9px rgb(var(--shadow-tint) / 0.2));
   }
-  /* side keys: action + volume on the left, power on the right */
-  .phone::before,
-  .phone::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1.25%;
-    z-index: -1;
-    border-radius: 2px;
-    background-repeat: no-repeat;
-  }
-  .phone::before {
-    left: -1.05%;
-    background-image:
-      linear-gradient(90deg, var(--frame-b), var(--frame-c)),
-      linear-gradient(90deg, var(--frame-b), var(--frame-c)),
-      linear-gradient(90deg, var(--frame-b), var(--frame-c));
-    background-size: 100% 3.2%, 100% 6%, 100% 6%;
-    background-position: 0 17.5%, 0 25.5%, 0 33.5%;
-  }
-  .phone::after {
-    right: -1.05%;
-    background-image: linear-gradient(90deg, var(--frame-c), var(--frame-b));
-    background-size: 100% 9.5%;
-    background-position: 0 25.5%;
-  }
-  .phone > .screen {
-    position: relative;
-    height: 100%;
-    padding: 2.3%;
-    border-radius: 15.6% / 7.1%;
-    background: #0c0908;
-    overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
-  }
-  .phone > .screen::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    background: linear-gradient(112deg, rgb(255 255 255 / 0.11) 0%, rgb(255 255 255 / 0.04) 24%, transparent 44%);
-  }
-  .phone > .screen > img {
+  .phone > img {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 13.4% / 6.1%;
-    background: #fcf6f1;
   }
 
   /* Phone trio arrangements (desktop); collapses to a stacked column below 768px */
   .trio {
     position: relative;
     width: 100%;
-    aspect-ratio: var(--trio-ratio, 16 / 13);
+    aspect-ratio: var(--trio-ratio, 16 / 12.5);
   }
   /* soft stage light behind the group, so the phones sit in a lit space instead of floating */
   .trio::before {
@@ -356,35 +292,23 @@
     .trio > .slot:nth-child(even) { align-self: flex-end; }
   }
 
-  /* Hero phone stage: width-driven 4:5 box, height-driven from lg so it fits the viewport */
+  /* Hero phone stage: width-driven on small screens, height-driven from lg so the
+     phone always fits the viewport without scrolling. */
   .hero-stage {
     position: relative;
-    aspect-ratio: 4 / 5;
-    width: min(100%, 420px);
+    width: min(100%, 300px);
     margin-inline: auto;
   }
   @media (min-width: 1024px) {
     .hero-stage {
-      --stage-h: clamp(440px, 78vh, 720px);
-      height: auto;
-      width: min(calc(var(--stage-h) * 0.8), 100%); /* one definite axis + aspect-ratio: always 4:5, so placeholder and canvas agree */
-      aspect-ratio: 4 / 5;
+      --stage-h: clamp(460px, 76vh, 720px);
+      width: min(calc(var(--stage-h) * 0.4833), 100%);
       margin-inline: auto 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .site-bg::before, .site-bg::after { animation: none; }
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
-  }
-  .hero-stage > .stage-layer {
-    position: absolute;
-    inset: 0;
-    transition: opacity 900ms var(--ease-out-soft);
-  }
-  .stage-layer img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
   }
 }
 
