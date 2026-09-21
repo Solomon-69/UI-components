@@ -61,7 +61,7 @@ export function Hero() {
               src={`${import.meta.env.BASE_URL}hero-phone.webp`}
               alt="Two iPhones, one showing its back and one showing the Luna Shift Today screen: a greeting, a 7 out of 10 score marked easing, and one-tap buttons for hot flash, night sweat, mood, sleep and brain fog"
               width={1500}
-              height={1953}
+              height={1670}
               fetchPriority="high"
               decoding="async"
               draggable={false}
