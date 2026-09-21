@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
+import { MockupShot } from '../components/MockupShot'
 import { PhoneTrio, type TrioVariant } from '../components/PhoneTrio'
 import { Reveal } from '../components/Reveal'
 import type { ScreenId } from '../lib/screens'
@@ -7,13 +8,17 @@ import { BRAND } from '../site'
 
 type Layout = 'split-right' | 'wide' | 'split-left' | 'stack'
 
+type Mockup = { src: string; alt: string; width: number; height: number }
+
 type Group = {
   id: string
   title: string
   body: ReactNode
-  screens: [ScreenId, ScreenId, ScreenId]
-  variant: TrioVariant
   layout: Layout
+  /** A photographic mockup, or three captures arranged in CSS phone frames. */
+  mockup?: Mockup
+  screens?: [ScreenId, ScreenId, ScreenId]
+  variant?: TrioVariant
 }
 
 // Rendered phone widths per layout, so the browser picks the smaller capture when it can.
@@ -29,8 +34,12 @@ const GROUPS: Group[] = [
     id: 'log',
     title: 'Log in seconds',
     body: <>Tap a symptom, note a dose, add today’s factors. {BRAND} keeps the record and reflects it back to you, gently.</>,
-    screens: ['today-home-hero', 'today-factors', 'patterns-apple-health'],
-    variant: 'stepped',
+    mockup: {
+      src: 'trio-log.webp',
+      alt: 'Three iPhones side by side showing the Luna Shift Today screen with one-tap symptom buttons, the factors logged for today with a gentle note on what they may mean, and an Apple Health summary of the last seven days',
+      width: 1600,
+      height: 1476,
+    },
     layout: 'split-right',
   },
   {
@@ -93,7 +102,11 @@ function Copy({ group, className = '' }: { group: Group; className?: string }) {
 }
 
 function FeatureGroup({ group }: { group: Group }) {
-  const trio = <PhoneTrio screens={group.screens} variant={group.variant} sizes={SIZES[group.layout]} />
+  const trio = group.mockup ? (
+    <MockupShot {...group.mockup} />
+  ) : (
+    <PhoneTrio screens={group.screens!} variant={group.variant} sizes={SIZES[group.layout]} />
+  )
   return (
     <section id={group.id} className="scroll-mt-24 py-20 md:py-28 lg:py-36" aria-labelledby={`${group.id}-title`}>
       <div className="container-x">

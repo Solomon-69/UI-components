@@ -35,13 +35,29 @@ function floodFromBorder(w, h, passable) {
  * The screen quad: the bright region sealed off from the backdrop by the dark bezel.
  * Returned corners are ordered top-left, top-right, bottom-right, bottom-left.
  */
-export function findScreenQuad({ data, w, h, c }, { darkBelow = 95, brightAbove = 150 } = {}) {
+export function findScreenQuads(
+  { data, w, h, c },
+  { darkBelow = 95, brightAbove = 150, count = 1, seal = 'dark', backdropTolerance = 14 } = {},
+) {
   const isDark = (i) => lum(data[i * c], data[i * c + 1], data[i * c + 2]) < darkBelow
-  const outside = floodFromBorder(w, h, (_x, _y, i) => !isDark(i))
 
-  // Largest bright blob that the backdrop cannot reach.
+  // What stops the backdrop from flowing into a screen. 'dark' relies on the bezel, which
+  // is enough for one phone. Where phones overlap, an inner bezel is hidden and the
+  // backdrop can slip through the silver rim instead, so 'backdrop' floods only pixels
+  // that still match the corner colour and stops at the first thing that is not backdrop.
+  const passable =
+    seal === 'backdrop'
+      ? (() => {
+          const corner = [0, 1, 2].map((ch) => data[ch])
+          return (i) =>
+            Math.max(...[0, 1, 2].map((ch) => Math.abs(data[i * c + ch] - corner[ch]))) <= backdropTolerance
+        })()
+      : (i) => !isDark(i)
+  const outside = floodFromBorder(w, h, (_x, _y, i) => passable(i))
+
+  // Every bright blob the backdrop cannot reach: one per screen.
   const label = new Int32Array(w * h).fill(-1)
-  let best = { size: 0, id: -1 }
+  const blobs = []
   let id = 0
   for (let start = 0; start < w * h; start++) {
     if (label[start] !== -1 || outside[start] || isDark(start)) continue
@@ -65,116 +81,129 @@ export function findScreenQuad({ data, w, h, c }, { darkBelow = 95, brightAbove 
         stack.push(n)
       }
     }
-    if (size > best.size) best = { size, id }
+    blobs.push({ size, id })
     id++
   }
-  if (best.id === -1) throw new Error('no screen region found')
+  const screens = blobs.sort((a, b) => b.size - a.size).slice(0, count)
+  if (screens.length < count) throw new Error(`found ${screens.length} screen regions, expected ${count}`)
 
-  // Extreme points are a starting guess only. On a rounded rectangle they land part way
-  // round the corner arcs, not on the true corners, which skews the whole mapping. So fit
-  // a line to each of the four straight sides and intersect them for the real corners.
-  let tl = null, br = null, tr = null, bl = null
-  for (let p = 0; p < w * h; p++) {
-    if (label[p] !== best.id) continue
-    const x = p % w
-    const y = (p / w) | 0
-    if (!tl || x + y < tl[0] + tl[1]) tl = [x, y]
-    if (!br || x + y > br[0] + br[1]) br = [x, y]
-    if (!tr || x - y > tr[0] - tr[1]) tr = [x, y]
-    if (!bl || x - y < bl[0] - bl[1]) bl = [x, y]
-  }
-  const rough = [tl, tr, br, bl]
+  const results = []
+  for (const { id: blobId, size } of screens) {
+    // Extreme points are a starting guess only. On a rounded rectangle they land part way
+    // round the corner arcs, not on the true corners, which skews the whole mapping. So fit
+    // a line to each of the four straight sides and intersect them for the real corners.
+    let tl = null, br = null, tr = null, bl = null
+    for (let p = 0; p < w * h; p++) {
+      if (label[p] !== blobId) continue
+      const x = p % w
+      const y = (p / w) | 0
+      if (!tl || x + y < tl[0] + tl[1]) tl = [x, y]
+      if (!br || x + y > br[0] + br[1]) br = [x, y]
+      if (!tr || x - y > tr[0] - tr[1]) tr = [x, y]
+      if (!bl || x - y < bl[0] - bl[1]) bl = [x, y]
+    }
+    const rough = [tl, tr, br, bl]
 
-  // Outer boundary pixels of the screen region. The Dynamic Island is a hole punched in
-  // the middle of the top edge, and its outline would drag that edge's fit inward, so only
-  // boundary pixels facing the world outside the screen count.
-  const exterior = floodFromBorder(w, h, (_x, _y, i) => label[i] !== best.id)
-  const edge = []
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      const p = y * w + x
-      if (label[p] !== best.id) continue
-      if (exterior[p - 1] || exterior[p + 1] || exterior[p - w] || exterior[p + w]) {
-        edge.push(x, y)
+    // Outer boundary pixels of the screen region. The Dynamic Island is a hole punched in
+    // the middle of the top edge, and its outline would drag that edge's fit inward, so only
+    // boundary pixels facing the world outside the screen count.
+    const exterior = floodFromBorder(w, h, (_x, _y, i) => label[i] !== blobId)
+    const edge = []
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const p = y * w + x
+        if (label[p] !== blobId) continue
+        if (exterior[p - 1] || exterior[p + 1] || exterior[p - w] || exterior[p + w]) {
+          edge.push(x, y)
+        }
       }
     }
-  }
 
-  // Total-least-squares line through a set of points, returned as a point and a direction.
-  const fitLine = (pts) => {
-    let sx = 0, sy = 0
-    for (let i = 0; i < pts.length; i += 2) {
-      sx += pts[i]
-      sy += pts[i + 1]
-    }
-    const n = pts.length / 2
-    const mx = sx / n
-    const my = sy / n
-    let xx = 0, yy = 0, xy = 0
-    for (let i = 0; i < pts.length; i += 2) {
-      const dx = pts[i] - mx
-      const dy = pts[i + 1] - my
-      xx += dx * dx
-      yy += dy * dy
-      xy += dx * dy
-    }
-    const theta = 0.5 * Math.atan2(2 * xy, xx - yy)
-    return { p: [mx, my], d: [Math.cos(theta), Math.sin(theta)] }
-  }
-
-  // Fit each side in two passes. The rough line runs between points that sit part way
-  // round the corner arcs, so it lies well inside the true edge: pass one casts a wide
-  // net to find roughly the right line, pass two tightens around it. Both passes skip the
-  // arcs, which curve inward and would drag the fit off the straight run.
-  const sides = []
-  for (let i = 0; i < 4; i++) {
-    const a = rough[i]
-    const b = rough[(i + 1) % 4]
-    const len = Math.hypot(b[0] - a[0], b[1] - a[1])
-    let line = { p: a, d: [(b[0] - a[0]) / len, (b[1] - a[1]) / len] }
-
-    for (const [band, lo, hi] of [
-      [Math.max(30, len * 0.08), 0.28, 0.72],
-      [Math.max(6, len * 0.02), 0.18, 0.82],
-    ]) {
-      const ux = line.d[0]
-      const uy = line.d[1]
-      const picked = []
-      for (let k = 0; k < edge.length; k += 2) {
-        const px = edge[k] - a[0]
-        const py = edge[k + 1] - a[1]
-        const along = (px * ux + py * uy) / len
-        if (along < lo || along > hi) continue
-        const qx = edge[k] - line.p[0]
-        const qy = edge[k + 1] - line.p[1]
-        if (Math.abs(qx * uy - qy * ux) > band) continue
-        picked.push(edge[k], edge[k + 1])
+    // Total-least-squares line through a set of points, returned as a point and a direction.
+    const fitLine = (pts) => {
+      let sx = 0, sy = 0
+      for (let i = 0; i < pts.length; i += 2) {
+        sx += pts[i]
+        sy += pts[i + 1]
       }
-      if (picked.length >= 40) line = fitLine(picked)
+      const n = pts.length / 2
+      const mx = sx / n
+      const my = sy / n
+      let xx = 0, yy = 0, xy = 0
+      for (let i = 0; i < pts.length; i += 2) {
+        const dx = pts[i] - mx
+        const dy = pts[i + 1] - my
+        xx += dx * dx
+        yy += dy * dy
+        xy += dx * dy
+      }
+      const theta = 0.5 * Math.atan2(2 * xy, xx - yy)
+      return { p: [mx, my], d: [Math.cos(theta), Math.sin(theta)] }
     }
-    sides.push(line)
-  }
 
-  const intersect = (l1, l2) => {
-    const det = l1.d[0] * -l2.d[1] - -l2.d[0] * l1.d[1]
-    if (Math.abs(det) < 1e-9) return null
-    const rx = l2.p[0] - l1.p[0]
-    const ry = l2.p[1] - l1.p[1]
-    const t = (rx * -l2.d[1] - -l2.d[0] * ry) / det
-    return [l1.p[0] + t * l1.d[0], l1.p[1] + t * l1.d[1]]
-  }
+    // Fit each side in two passes. The rough line runs between points that sit part way
+    // round the corner arcs, so it lies well inside the true edge: pass one casts a wide
+    // net to find roughly the right line, pass two tightens around it. Both passes skip the
+    // arcs, which curve inward and would drag the fit off the straight run.
+    const sides = []
+    for (let i = 0; i < 4; i++) {
+      const a = rough[i]
+      const b = rough[(i + 1) % 4]
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1])
+      let line = { p: a, d: [(b[0] - a[0]) / len, (b[1] - a[1]) / len] }
 
-  // corner i is where side (i-1) meets side i
-  const corners = []
-  for (let i = 0; i < 4; i++) {
-    const hit = intersect(sides[(i + 3) % 4], sides[i])
-    corners.push(hit ?? rough[i])
-  }
+      for (const [band, lo, hi] of [
+        [Math.max(30, len * 0.08), 0.28, 0.72],
+        [Math.max(6, len * 0.02), 0.18, 0.82],
+      ]) {
+        const ux = line.d[0]
+        const uy = line.d[1]
+        const picked = []
+        for (let k = 0; k < edge.length; k += 2) {
+          const px = edge[k] - a[0]
+          const py = edge[k + 1] - a[1]
+          const along = (px * ux + py * uy) / len
+          if (along < lo || along > hi) continue
+          const qx = edge[k] - line.p[0]
+          const qy = edge[k + 1] - line.p[1]
+          if (Math.abs(qx * uy - qy * ux) > band) continue
+          picked.push(edge[k], edge[k + 1])
+        }
+        if (picked.length >= 40) line = fitLine(picked)
+      }
+      sides.push(line)
+    }
 
-  // The blob itself is the exact screen shape: rounded corners, island excluded.
-  const mask = Buffer.alloc(w * h * 4)
-  for (let p = 0; p < w * h; p++) if (label[p] === best.id) mask[p * 4 + 3] = 255
-  return { quad: corners, area: best.size, mask, w, h }
+    const intersect = (l1, l2) => {
+      const det = l1.d[0] * -l2.d[1] - -l2.d[0] * l1.d[1]
+      if (Math.abs(det) < 1e-9) return null
+      const rx = l2.p[0] - l1.p[0]
+      const ry = l2.p[1] - l1.p[1]
+      const t = (rx * -l2.d[1] - -l2.d[0] * ry) / det
+      return [l1.p[0] + t * l1.d[0], l1.p[1] + t * l1.d[1]]
+    }
+
+    // corner i is where side (i-1) meets side i
+    const corners = []
+    for (let i = 0; i < 4; i++) {
+      const hit = intersect(sides[(i + 3) % 4], sides[i])
+      corners.push(hit ?? rough[i])
+    }
+
+    // The blob itself is the exact screen shape: rounded corners, island excluded.
+    const mask = Buffer.alloc(w * h * 4)
+    for (let p = 0; p < w * h; p++) if (label[p] === blobId) mask[p * 4 + 3] = 255
+    results.push({ quad: corners, area: size, mask, centroidX: corners.reduce((t, q) => t + q[0], 0) / 4 })
+  }
+  // Left to right, so callers can pair screens with captures in reading order.
+  results.sort((x, y) => x.centroidX - y.centroidX)
+  return { screens: results, w, h }
+}
+
+/** Convenience wrapper for the single-screen case. */
+export function findScreenQuad(img, opts = {}) {
+  const { screens, w, h } = findScreenQuads(img, { ...opts, count: 1 })
+  return { ...screens[0], w, h }
 }
 
 /** Homography mapping the unit square onto the quad, as used for inverse sampling. */

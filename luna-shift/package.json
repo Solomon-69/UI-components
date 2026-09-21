@@ -12,7 +12,8 @@
     "images": "node scripts/optimize-images.mjs",
     "og": "node scripts/make-og.mjs",
     "icon": "node scripts/render-icon.mjs",
-    "hero": "node scripts/make-hero-mockup.mjs"
+    "hero": "node scripts/make-hero-mockup.mjs",
+    "trio": "node scripts/make-trio-mockup.mjs"
   },
   "dependencies": {
     "@fontsource-variable/lora": "^5.3.0",

@@ -46,6 +46,7 @@ VITE_SITE_URL=https://lunashift.app npm run build
 | --- | --- |
 | `npm run images` | Composites every capture in `screens-src/` into `iphone-frame.webp` and writes `public/screens/` at 520px and 870px |
 | `npm run hero` | Rebuilds `public/hero-phone.webp`: maps the Today capture onto the photographic mockup's screen and lifts the phones off their grey backdrop |
+| `npm run trio` | Rebuilds `public/trio-log.webp` for the "Log in seconds" section from the three-phone mockup |
 | `npm run og` | Rebuilds `public/og.jpg`, the 1200x630 social card |
 | `npm run icon` | Re-renders the site icon from the app's Icon Composer layers on the SSD project |
 
