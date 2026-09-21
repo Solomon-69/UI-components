@@ -2,7 +2,6 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react'
 import { AppStore } from '../components/AppStore'
 import { Button } from '../components/Button'
-import { Phone } from '../components/Phone'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 const stagger = {
@@ -58,7 +57,16 @@ export function Hero() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.2, ease: EASE, delay: 0.16 }}
           >
-            <Phone screen="today-home-hero" priority sizes="(min-width: 1024px) 350px, (min-width: 768px) 38vw, 74vw" />
+            <img
+              src={`${import.meta.env.BASE_URL}hero-phone.webp`}
+              alt="Two iPhones, one showing its back and one showing the Luna Shift Today screen: a greeting, a 7 out of 10 score marked easing, and one-tap buttons for hot flash, night sweat, mood, sleep and brain fog"
+              width={1500}
+              height={1953}
+              fetchPriority="high"
+              decoding="async"
+              draggable={false}
+              className="w-full"
+            />
           </motion.div>
         </motion.div>
       </div>

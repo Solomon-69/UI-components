@@ -296,13 +296,14 @@
      phone always fits the viewport without scrolling. */
   .hero-stage {
     position: relative;
-    width: min(100%, 300px);
+    width: min(100%, 420px);
     margin-inline: auto;
+    filter: drop-shadow(0 30px 34px rgb(var(--shadow-tint) / 0.26)) drop-shadow(0 6px 10px rgb(var(--shadow-tint) / 0.16));
   }
   @media (min-width: 1024px) {
     .hero-stage {
-      --stage-h: clamp(460px, 76vh, 720px);
-      width: min(calc(var(--stage-h) * 0.4833), 100%);
+      --stage-h: clamp(460px, 78vh, 740px);
+      width: min(calc(var(--stage-h) * 0.768), 100%);
       margin-inline: auto 0;
     }
   }

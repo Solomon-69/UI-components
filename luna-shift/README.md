@@ -45,6 +45,7 @@ VITE_SITE_URL=https://lunashift.app npm run build
 | Command | What it does |
 | --- | --- |
 | `npm run images` | Composites every capture in `screens-src/` into `iphone-frame.webp` and writes `public/screens/` at 520px and 870px |
+| `npm run hero` | Rebuilds `public/hero-phone.webp`: maps the Today capture onto the photographic mockup's screen and lifts the phones off their grey backdrop |
 | `npm run og` | Rebuilds `public/og.jpg`, the 1200x630 social card |
 | `npm run icon` | Re-renders the site icon from the app's Icon Composer layers on the SSD project |
 
@@ -52,8 +53,11 @@ To add or replace an app screen, drop a capture into `screens-src/` named after 
 id and run `npm run images`. Captures must match the phone screen's aspect ratio (roughly
 0.459, e.g. 920x2000); the script refuses anything further off than that.
 
-The hero phone is the same framed image as everywhere else, just larger, so there is
-nothing separate to regenerate for it.
+The hero uses a different source: `mock-soft-studio-light.png`, a photographic mockup.
+It ships flattened, so `npm run hero` does the work the template would have: it finds the
+screen's four corners, perspective-maps the Today capture onto them, masks it to the
+screen's exact rounded shape, and cuts the phones off their grey backdrop. The helpers
+live in `scripts/lib/mockup.mjs` and work on the other mockups in `screens-src/` too.
 
 `model-src/` holds the iPhone model from the earlier 3D hero. Nothing uses it now; it can
 be deleted whenever you like.
