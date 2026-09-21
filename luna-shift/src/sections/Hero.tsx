@@ -1,8 +1,8 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react'
+import { AppStore } from '../components/AppStore'
 import { Button } from '../components/Button'
 import { Phone } from '../components/Phone'
-import { site } from '../site'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 const stagger = {
@@ -44,9 +44,7 @@ export function Hero() {
             Log symptoms, hormone therapy and daily factors in seconds. Everything stays on your phone. No account, nothing uploaded, nothing sold.
           </motion.p>
           <motion.div variants={item} className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
-            <Button href={site.ctaHref} external>
-              {site.ctaLabel}
-            </Button>
+            <AppStore />
             <Button href="#log" variant="quiet">
               See how it works
             </Button>

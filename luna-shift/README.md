@@ -16,7 +16,8 @@ npm run preview    # serve dist/ locally
 
 Edit `src/site.ts`:
 
-- `ctaHref`: the public TestFlight link, or the App Store link once the app is live
+- `appStoreHref`: the App Store listing, once the app is live. Until then the page shows
+  "Live on the App Store" as plain text rather than a button that leads nowhere
 - `contactEmail`: the real support address
 - `privacyHref`: the published privacy policy page (currently points at the on-page section)
 

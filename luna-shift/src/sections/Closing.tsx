@@ -1,5 +1,5 @@
 import { Envelope, Monitor, Moon, Sun } from '@phosphor-icons/react'
-import { Button } from '../components/Button'
+import { AppStore } from '../components/AppStore'
 import { Reveal } from '../components/Reveal'
 import { Wordmark } from '../components/Wordmark'
 import { useTheme } from '../lib/useTheme'
@@ -35,9 +35,7 @@ export function Closing() {
               Install {BRAND}, log your first symptom, and see what the week shows you.
             </p>
             <div className="mt-9 flex justify-center">
-              <Button href={site.ctaHref} external>
-                {site.ctaLabel}
-              </Button>
+              <AppStore />
             </div>
           </Reveal>
         </div>
@@ -47,10 +45,6 @@ export function Closing() {
         <div className="container-x flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
           <Wordmark />
           <nav aria-label="Footer" className="flex flex-col items-start gap-3 text-[0.95rem] font-medium text-muted sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7">
-            <a href={site.ctaHref} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-ink">
-              {site.ctaLabel}
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
             <a href={`mailto:${site.contactEmail}`} className="inline-flex items-center gap-1.5 transition-colors hover:text-ink">
               <Envelope weight="regular" className="size-4" aria-hidden="true" />
               {site.contactEmail}

@@ -1,6 +1,5 @@
-import { Button } from './Button'
+import { AppStore } from './AppStore'
 import { Wordmark } from './Wordmark'
-import { site } from '../site'
 
 export function Nav() {
   return (
@@ -13,9 +12,7 @@ export function Nav() {
           <a href="#privacy" className="hidden text-[0.95rem] font-medium text-muted transition-colors hover:text-ink sm:inline">
             Privacy
           </a>
-          <Button href={site.ctaHref} external size="sm">
-            {site.ctaLabel}
-          </Button>
+          <AppStore size="sm" />
         </nav>
       </div>
     </header>

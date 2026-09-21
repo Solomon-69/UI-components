@@ -4,8 +4,8 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 const checks = [
-  { file: 'src/site.ts', needle: 'REPLACE_ME', what: 'the TestFlight link in src/site.ts (ctaHref)' },
   { file: 'src/site.ts', needle: 'hello@lunashift.app', what: 'the support address in src/site.ts (contactEmail)' },
+  { file: 'src/site.ts', needle: 'appStoreHref: null', what: 'the App Store link in src/site.ts (appStoreHref), once the app is live' },
 ]
 
 const found = []
