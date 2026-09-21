@@ -8,11 +8,15 @@ export function Nav() {
     >
       <div className="container-x flex h-16 items-center justify-between">
         <Wordmark />
-        <nav aria-label="Primary" className="flex items-center gap-6">
-          <a href="#privacy" className="hidden text-[0.95rem] font-medium text-muted transition-colors hover:text-ink sm:inline">
+        {/* The App Store line repeats in the hero just below, so on the narrowest phones
+            it gives way to keep the bar on one line. */}
+        <nav aria-label="Primary" className="flex items-center gap-5 sm:gap-6">
+          <a href="#privacy" className="text-[0.95rem] font-medium text-muted transition-colors hover:text-ink">
             Privacy
           </a>
-          <AppStore size="sm" />
+          <div className="hidden sm:block">
+            <AppStore size="sm" />
+          </div>
         </nav>
       </div>
     </header>
