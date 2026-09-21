@@ -10,7 +10,7 @@ import path from 'node:path'
 import { findScreenQuad, readRGBA, warpOntoQuad } from './lib/mockup.mjs'
 
 const SRC = path.resolve('screens-src')
-const MOCKUP = path.join(SRC, 'mock-hero-cutout.webp')
+const MOCKUP = path.join(SRC, 'mock-hero-cutout.png')
 const CAPTURE = path.join(SRC, 'today-home-hero.jpg')
 const OUT = path.resolve('public/hero-phone.webp')
 const OUT_WIDTH = 1500
