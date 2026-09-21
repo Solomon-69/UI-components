@@ -70,7 +70,9 @@ export function findScreenQuad({ data, w, h, c }, { darkBelow = 95, brightAbove 
   }
   if (best.id === -1) throw new Error('no screen region found')
 
-  // Corners of a rotated rectangle sit at the extremes of x+y and x-y.
+  // Extreme points are a starting guess only. On a rounded rectangle they land part way
+  // round the corner arcs, not on the true corners, which skews the whole mapping. So fit
+  // a line to each of the four straight sides and intersect them for the real corners.
   let tl = null, br = null, tr = null, bl = null
   for (let p = 0; p < w * h; p++) {
     if (label[p] !== best.id) continue
@@ -81,10 +83,98 @@ export function findScreenQuad({ data, w, h, c }, { darkBelow = 95, brightAbove 
     if (!tr || x - y > tr[0] - tr[1]) tr = [x, y]
     if (!bl || x - y < bl[0] - bl[1]) bl = [x, y]
   }
+  const rough = [tl, tr, br, bl]
+
+  // Outer boundary pixels of the screen region. The Dynamic Island is a hole punched in
+  // the middle of the top edge, and its outline would drag that edge's fit inward, so only
+  // boundary pixels facing the world outside the screen count.
+  const exterior = floodFromBorder(w, h, (_x, _y, i) => label[i] !== best.id)
+  const edge = []
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const p = y * w + x
+      if (label[p] !== best.id) continue
+      if (exterior[p - 1] || exterior[p + 1] || exterior[p - w] || exterior[p + w]) {
+        edge.push(x, y)
+      }
+    }
+  }
+
+  // Total-least-squares line through a set of points, returned as a point and a direction.
+  const fitLine = (pts) => {
+    let sx = 0, sy = 0
+    for (let i = 0; i < pts.length; i += 2) {
+      sx += pts[i]
+      sy += pts[i + 1]
+    }
+    const n = pts.length / 2
+    const mx = sx / n
+    const my = sy / n
+    let xx = 0, yy = 0, xy = 0
+    for (let i = 0; i < pts.length; i += 2) {
+      const dx = pts[i] - mx
+      const dy = pts[i + 1] - my
+      xx += dx * dx
+      yy += dy * dy
+      xy += dx * dy
+    }
+    const theta = 0.5 * Math.atan2(2 * xy, xx - yy)
+    return { p: [mx, my], d: [Math.cos(theta), Math.sin(theta)] }
+  }
+
+  // Fit each side in two passes. The rough line runs between points that sit part way
+  // round the corner arcs, so it lies well inside the true edge: pass one casts a wide
+  // net to find roughly the right line, pass two tightens around it. Both passes skip the
+  // arcs, which curve inward and would drag the fit off the straight run.
+  const sides = []
+  for (let i = 0; i < 4; i++) {
+    const a = rough[i]
+    const b = rough[(i + 1) % 4]
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1])
+    let line = { p: a, d: [(b[0] - a[0]) / len, (b[1] - a[1]) / len] }
+
+    for (const [band, lo, hi] of [
+      [Math.max(30, len * 0.08), 0.28, 0.72],
+      [Math.max(6, len * 0.02), 0.18, 0.82],
+    ]) {
+      const ux = line.d[0]
+      const uy = line.d[1]
+      const picked = []
+      for (let k = 0; k < edge.length; k += 2) {
+        const px = edge[k] - a[0]
+        const py = edge[k + 1] - a[1]
+        const along = (px * ux + py * uy) / len
+        if (along < lo || along > hi) continue
+        const qx = edge[k] - line.p[0]
+        const qy = edge[k + 1] - line.p[1]
+        if (Math.abs(qx * uy - qy * ux) > band) continue
+        picked.push(edge[k], edge[k + 1])
+      }
+      if (picked.length >= 40) line = fitLine(picked)
+    }
+    sides.push(line)
+  }
+
+  const intersect = (l1, l2) => {
+    const det = l1.d[0] * -l2.d[1] - -l2.d[0] * l1.d[1]
+    if (Math.abs(det) < 1e-9) return null
+    const rx = l2.p[0] - l1.p[0]
+    const ry = l2.p[1] - l1.p[1]
+    const t = (rx * -l2.d[1] - -l2.d[0] * ry) / det
+    return [l1.p[0] + t * l1.d[0], l1.p[1] + t * l1.d[1]]
+  }
+
+  // corner i is where side (i-1) meets side i
+  const corners = []
+  for (let i = 0; i < 4; i++) {
+    const hit = intersect(sides[(i + 3) % 4], sides[i])
+    corners.push(hit ?? rough[i])
+  }
+
   // The blob itself is the exact screen shape: rounded corners, island excluded.
   const mask = Buffer.alloc(w * h * 4)
   for (let p = 0; p < w * h; p++) if (label[p] === best.id) mask[p * 4 + 3] = 255
-  return { quad: [tl, tr, br, bl], area: best.size, mask, w, h }
+  return { quad: corners, area: best.size, mask, w, h }
 }
 
 /** Homography mapping the unit square onto the quad, as used for inverse sampling. */
@@ -134,10 +224,9 @@ function invert3(m) {
  * Draws `capture` onto `quad` inside a transparent canvas of w x h, with bilinear
  * sampling so the warped text stays readable.
  */
-export async function warpOntoQuad(captureFile, quad, w, h, { overscan = 1.06 } = {}) {
+export async function warpOntoQuad(captureFile, quad, w, h, { overscan = 1.004 } = {}) {
   const cap = await readRGBA(captureFile)
-  // The screen's rounded corners sit outside the straight-edged quad, so paint a little
-  // past it; the screen-shaped mask trims the excess and no checkerboard survives.
+  // A hair of overscan covers rounding at the very edge; the screen-shaped mask trims it.
   const cx = quad.reduce((a, p) => a + p[0], 0) / 4
   const cy = quad.reduce((a, p) => a + p[1], 0) / 4
   quad = quad.map(([x, y]) => [cx + (x - cx) * overscan, cy + (y - cy) * overscan])
