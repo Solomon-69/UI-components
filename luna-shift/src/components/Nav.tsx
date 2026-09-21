@@ -1,3 +1,4 @@
+import { site } from '../site'
 import { AppStore } from './AppStore'
 import { Wordmark } from './Wordmark'
 
@@ -11,7 +12,7 @@ export function Nav() {
         {/* The App Store line repeats in the hero just below, so on the narrowest phones
             it gives way to keep the bar on one line. */}
         <nav aria-label="Primary" className="flex items-center gap-5 sm:gap-6">
-          <a href="#privacy" className="text-[0.95rem] font-medium text-muted transition-colors hover:text-ink">
+          <a href={site.privacyHref} className="text-[0.95rem] font-medium text-muted transition-colors hover:text-ink">
             Privacy
           </a>
           <div className="hidden sm:block">

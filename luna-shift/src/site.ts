@@ -2,7 +2,7 @@
 export const site = {
   name: 'Luna Shift',
   contactEmail: 'lunashiftsupport@gmail.com',
-  privacyHref: '#privacy',
+  privacyHref: `${import.meta.env.BASE_URL}privacy.html`,
   /**
    * The App Store line stands in for a download button. The site has to exist before the
    * app can be submitted, so there is no link to point at yet. When the app is live,
