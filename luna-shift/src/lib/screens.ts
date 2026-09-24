@@ -13,6 +13,7 @@ export type ScreenId =
   | 'insights-weekly-summary'
   | 'insights-whats-shifting'
   | 'settings-and-connections'
+  | 'no-account'
   | 'paced-breathing'
   | 'paced-breathing-complete'
 
@@ -44,6 +45,8 @@ export const screenAlt: Record<ScreenId, string> = {
     'Symptom check-in results split by category, above a list of what is shifting: night sweats down 33%, sleep steady, insomnia down 50%',
   'settings-and-connections':
     'Settings sheet with a daily check-in reminder and Apple Health connections for sleep, menstrual flow, heart rate and weight, each switched on by choice',
+  'no-account':
+    'A No account needed screen: a shield above the line that what you log stays on your phone and backs up to your own iCloud, with nothing to sign up for and no copy of your health data on any server',
   'paced-breathing': 'The paced breathing exercise part-way through, on cycle 4 of 9',
   'paced-breathing-complete':
     'The paced breathing exercise on its final cycle, with 15 sessions and 43 calm minutes logged',

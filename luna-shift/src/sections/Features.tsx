@@ -34,13 +34,9 @@ const GROUPS: Group[] = [
     id: 'log',
     title: 'Log in seconds',
     body: <>Tap a symptom, note a dose, add today’s factors. {BRAND} keeps the record and reflects it back to you, gently.</>,
-    mockup: {
-      src: 'trio-log.webp',
-      alt: 'Three iPhones side by side showing the Luna Shift Today screen with one-tap symptom buttons, the factors logged for today with a gentle note on what they may mean, and an Apple Health summary of the last seven days',
-      width: 1600,
-      height: 1476,
-    },
-    layout: 'split-right',
+    screens: ['today-home-hero', 'today-factors', 'patterns-apple-health'],
+    variant: 'row',
+    layout: 'wide',
   },
   {
     id: 'patterns',

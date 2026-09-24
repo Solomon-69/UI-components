@@ -28,7 +28,7 @@ export function Privacy() {
                 Everything you log stays with you — on your iPhone and in your own private iCloud. Not on our servers, not in an account, not in anyone’s hands but yours.
               </p>
             </div>
-            {/* The connections screen is the promise made visible: every source is opt-in. */}
+            {/* The in-app "No account needed" screen makes the promise visible beside the copy. */}
             <motion.div
               className="mx-auto w-[62%] max-w-[230px] lg:col-span-3 lg:w-full lg:max-w-none"
               initial={reduce ? false : { opacity: 0, y: 34 }}
@@ -36,7 +36,7 @@ export function Privacy() {
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 1, ease: EASE, delay: 0.08 }}
             >
-              <Phone screen="settings-and-connections" sizes="(min-width: 1024px) 230px, 62vw" />
+              <Phone screen="no-account" sizes="(min-width: 1024px) 230px, 62vw" />
             </motion.div>
             <ul className="lg:col-span-5 lg:pl-6">
               {PROMISES.map(({ icon: I, title, body }, i) => (
