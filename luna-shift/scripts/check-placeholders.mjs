@@ -5,7 +5,7 @@ import path from 'node:path'
 
 const checks = [
   { file: 'src/site.ts', needle: 'hello@lunashift.app', what: 'the support address in src/site.ts (contactEmail)' },
-  { file: 'src/site.ts', needle: 'appStoreHref: null', what: 'the App Store link in src/site.ts (appStoreHref), once the app is live' },
+  { file: 'src/site.ts', needle: 'APP_IS_LIVE = false', what: 'the App Store launch switch in src/site.ts (set APP_IS_LIVE = true once the app is live)' },
 ]
 
 const found = []

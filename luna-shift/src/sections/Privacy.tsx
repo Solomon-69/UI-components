@@ -5,9 +5,9 @@ import { Reveal } from '../components/Reveal'
 import { BRAND } from '../site'
 
 const PROMISES: { icon: Icon; title: string; body: string }[] = [
-  { icon: LockKey, title: 'On-device only', body: 'Your logs are stored in the app on your iPhone, not on our servers.' },
+  { icon: LockKey, title: 'On your device', body: 'Your logs live in the app on your iPhone, never on our servers.' },
   { icon: UserCircleMinus, title: 'No account needed', body: 'Open the app and start. You never have to create one.' },
-  { icon: CloudSlash, title: 'Nothing uploaded', body: 'What you log is not sent to us, or to anyone else.' },
+  { icon: CloudSlash, title: 'Nothing uploaded to us', body: 'What you log is not sent to us, or to anyone else. It backs up to your own private iCloud, so a new phone picks up where you left off.' },
   { icon: HandCoins, title: 'Nothing sold', body: 'Not to advertisers, not to data brokers, not to anyone.' },
 ]
 
@@ -25,7 +25,7 @@ export function Privacy() {
                 Private by design.
               </h2>
               <p className="mt-6 max-w-[38ch] text-[1.06rem] leading-relaxed text-panel-muted">
-                Everything you log stays on your phone. Not on a server, not in an account, not in anyone’s hands but yours.
+                Everything you log stays with you — on your iPhone and in your own private iCloud. Not on our servers, not in an account, not in anyone’s hands but yours.
               </p>
             </div>
             {/* The connections screen is the promise made visible: every source is opt-in. */}
