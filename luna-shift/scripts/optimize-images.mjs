@@ -54,6 +54,22 @@ async function deviceMask() {
 
 const silhouette = await deviceMask()
 
+/**
+ * A softly-feathered rounded-rectangle mask the size of the device box.
+ *
+ * The iPhone render's titanium rim catches a bright highlight that pools at each rounded
+ * corner and reads as a tiny "bump" against a dark panel. Trimming a few pixels off each
+ * corner with a radius a touch tighter than the render's own removes that glinting tip and
+ * leaves a clean, evenly rounded corner. The straight edges — and the side keys on them —
+ * are untouched.
+ */
+const CORNER_RADIUS = 168
+async function cornerMask() {
+  const svg = `<svg width="${FRAME.width}" height="${FRAME.height}"><rect x="0" y="0" width="${FRAME.width}" height="${FRAME.height}" rx="${CORNER_RADIUS}" ry="${CORNER_RADIUS}" fill="#fff"/></svg>`
+  return sharp(Buffer.from(svg)).blur(0.6).png().toBuffer()
+}
+const corners = await cornerMask()
+
 const captures = (await readdir(SRC)).filter((f) => f.endsWith('.jpg')).sort()
 if (captures.length === 0) throw new Error(`no .jpg captures found in ${SRC}`)
 
@@ -76,7 +92,9 @@ for (const file of captures) {
     ])
     .png()
     .toBuffer()
-  const composed = await sharp(clipped).composite([{ input: frame, left: 0, top: 0 }]).png().toBuffer()
+  const framed = await sharp(clipped).composite([{ input: frame, left: 0, top: 0 }]).png().toBuffer()
+  // Trim the bright rim glint off the four corners, keeping the straight edges and keys.
+  const composed = await sharp(framed).composite([{ input: corners, blend: 'dest-in' }]).png().toBuffer()
 
   for (const w of WIDTHS) {
     await sharp(composed)

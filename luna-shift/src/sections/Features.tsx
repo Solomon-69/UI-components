@@ -35,7 +35,7 @@ const GROUPS: Group[] = [
     title: 'Log in seconds',
     body: <>Tap a symptom, note a dose, add today’s factors. {BRAND} keeps the record and reflects it back to you, gently.</>,
     screens: ['today-home-hero', 'today-factors', 'patterns-apple-health'],
-    variant: 'row',
+    variant: 'level',
     layout: 'wide',
   },
   {

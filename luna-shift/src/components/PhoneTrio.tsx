@@ -3,7 +3,7 @@ import { useRef, type CSSProperties, type ReactNode } from 'react'
 import { Phone } from './Phone'
 import type { ScreenId } from '../lib/screens'
 
-export type TrioVariant = 'stepped' | 'row' | 'cascade' | 'fan'
+export type TrioVariant = 'stepped' | 'row' | 'level' | 'cascade' | 'fan'
 
 type Depth = 1 | 2 | 3
 type Slot = { x: string; y: string; s: number; z: Depth }
@@ -28,6 +28,15 @@ const LAYOUTS: Record<TrioVariant, { ratio: string; slots: Slot[] }> = {
       { x: '3%', y: '9%', s: 0.92, z: 1 },
       { x: '34%', y: '0%', s: 1, z: 3 },
       { x: '65%', y: '9%', s: 0.92, z: 2 },
+    ],
+  },
+  // three level phones side by side on one axis, same size, evenly spaced
+  level: {
+    ratio: '16 / 10.9',
+    slots: [
+      { x: '1%', y: '1%', s: 1, z: 2 },
+      { x: '34%', y: '1%', s: 1, z: 2 },
+      { x: '67%', y: '1%', s: 1, z: 2 },
     ],
   },
   // descending deck: left in front, each next phone a little lower and further back
